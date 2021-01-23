@@ -1,6 +1,44 @@
 # Crunch
 A library for compiling and evaluating mathematical expressions with variables
 
+# Installation for Development
+
+Crunch can be accessed via JitPack using Gradle or Maven. Read the section for whichever you use below.
+
+## Gradle:
+
+```		
+repositories {
+	maven { url 'https://jitpack.io' }
+}
+
+```
+
+```
+dependencies {
+	implementation 'com.github.Redempt:Crunch:-SNAPSHOT'
+}
+```
+
+## Maven:
+
+```
+<repository>
+	<id>jitpack.io</id>
+	<url>https://jitpack.io</url>
+</repository>
+```
+
+```
+<dependency>
+	<groupId>com.github.Redempt</groupId>
+	<artifactId>Crunch</artifactId>
+	<version>-SNAPSHOT</version>
+</dependency>
+```
+
+# Usage
+
 Crunch offers a better solution to evaluating complex mathematical expressions than using ScriptManager. It is simple to use, performant, and lightweight.
 
 There are only a handful of methods you will need to use in Crunch. To compile an expression, simply call `Crunch#compileExpression`. Here's an example:

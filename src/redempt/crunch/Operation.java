@@ -34,9 +34,9 @@ class Operation implements Value {
 	}
 	
 	public String toString() {
-		return operator.isUnary() ?
+		return "(" + (operator.isUnary() ?
 				operator.getSymbol() + first.toString() :
-				first.toString() + operator.getSymbol() + second.toString();
+				first.toString() + operator.getSymbol() + second.toString()) + ")";
 	}
 	
 	public Operation clone() {

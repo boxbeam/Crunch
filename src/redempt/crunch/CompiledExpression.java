@@ -79,4 +79,12 @@ public class CompiledExpression {
 		return clone;
 	}
 	
+	/**
+	 * Converts this CompiledExpression back to a String which can be used to recreate it later
+	 * @return A String representation of this CompiledExpression
+	 */
+	public String toString() {
+		return value.toString();
+	}
+	
 }

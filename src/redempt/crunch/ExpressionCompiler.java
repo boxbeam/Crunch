@@ -116,6 +116,11 @@ public class ExpressionCompiler {
 			if (next.getType() == TokenType.OPERATOR) {
 				throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 			}
+			if (next.getType() == TokenType.LITERAL_VALUE) {
+				LiteralValue literal = (LiteralValue) next;
+				tokens.set(index, new LiteralValue(op.operate(literal.getValue())));
+				return;
+			}
 			tokens.set(index, new Operation(op, (Value) next));
 			return;
 		}
@@ -128,6 +133,12 @@ public class ExpressionCompiler {
 			throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 		}
 		tokens.subList(index - 1, index + 1).clear();
+		if (prev.getType() == TokenType.LITERAL_VALUE && next.getType() == TokenType.LITERAL_VALUE) {
+			LiteralValue lit1 = (LiteralValue) prev;
+			LiteralValue lit2 = (LiteralValue) next;
+			tokens.set(index - 1, new LiteralValue(op.operate(lit1.getValue(), lit2.getValue())));
+			return;
+		}
 		tokens.set(index - 1, new Operation(op, (Value) prev, (Value) next));
 	}
 	

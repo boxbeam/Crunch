@@ -9,12 +9,12 @@ import java.util.function.Function;
  */
 public enum Operator implements Token {
 	
-	SINE("sin", 6, Math::sin),
-	COSINE("cos", 6, Math::cos),
-	TANGENT("tan", 6, Math::tan),
-	ABSOLUTE_VALUE("abs", 6, Math::abs),
-	SQUARE_ROOT("sqrt", 6, Math::sqrt),
-	EXPONENT("^", 5, Math::pow),
+	SINE("sin", 6, d -> Math.sin(d)),
+	COSINE("cos", 6, d -> Math.cos(d)),
+	TANGENT("tan", 6, d -> Math.tan(d)),
+	ABSOLUTE_VALUE("abs", 6, d -> Math.abs(d)),
+	SQUARE_ROOT("sqrt", 6, d -> Math.sqrt(d)),
+	EXPONENT("^", 5, (a, b) -> Math.pow(a, b)),
 	MULTIPLY("*", 4, (a, b) -> a * b),
 	DIVIDE("/", 4, (a, b) -> a / b),
 	MODULUS("%", 4, (a, b) -> a % b),

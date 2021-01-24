@@ -69,6 +69,9 @@ public class CompiledExpression {
 		return value.getValue();
 	}
 	
+	/**
+	 * @return A clone of this CompiledExpression
+	 */
 	public CompiledExpression clone() {
 		CompiledExpression clone = new CompiledExpression();
 		Value cloned = value.clone();

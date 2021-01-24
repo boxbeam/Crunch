@@ -16,7 +16,7 @@ repositories {
 
 ```
 dependencies {
-	implementation 'com.github.Redempt:Crunch:-SNAPSHOT'
+	implementation 'com.github.Redempt:Crunch:master-SNAPSHOT'
 }
 ```
 
@@ -33,7 +33,7 @@ dependencies {
 <dependency>
 	<groupId>com.github.Redempt</groupId>
 	<artifactId>Crunch</artifactId>
-	<version>-SNAPSHOT</version>
+	<version>master-SNAPSHOT</version>
 </dependency>
 ```
 

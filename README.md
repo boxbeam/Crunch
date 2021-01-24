@@ -69,3 +69,5 @@ Crunch.evaluateExpression("abs(3 - $1)", exampleVar);
 However, if the expression will be used more than once, it is highly recommended to keep it as a `CompiledExpression` instead.
 
 CompiledExpressions are NOT thread-safe, and may have issues if `evaluate` is called from multiple threads at the same time. For multi-threaded purposes, please mutex your CompiledExpression or clone it with `CompiledExpression#clone` and pass it off to another thread.
+
+Note: Unary operators following binary operators must be wrapped in parenthesis! Example: `1+sin1` will not work, but `1+(sin1)` will.

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ExpressionCompiler {
-
+	
 	private static Set<Character> opChars = new HashSet<>();
 	private static Map<String, Operator> opMap = new HashMap<>();
 	private static final char VAR_CHAR = '$';
@@ -55,9 +55,9 @@ public class ExpressionCompiler {
 					depth--;
 					if (depth == 0) {
 						tokens.add(compileValue(expression, exp, tokenStart + 1, i));
+						tokenStart = i + 1;
+						op = true;
 					}
-					tokenStart = i + 1;
-					op = true;
 					continue;
 			}
 			if (depth != 0) {
@@ -155,5 +155,5 @@ public class ExpressionCompiler {
 		}
 		return new LiteralValue(Double.parseDouble(str));
 	}
-
+	
 }

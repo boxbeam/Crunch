@@ -3,16 +3,14 @@ package redempt.crunch;
 import redempt.crunch.exceptions.ExpressionCompilationException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class ExpressionCompiler {
 	
 	private static Set<Character> opChars = new HashSet<>();
-	private static Map<String, Operator> opMap = new HashMap<>();
+	private static CharTree opMap = new CharTree();
 	private static final char VAR_CHAR = '$';
 	
 	static {
@@ -20,7 +18,7 @@ public class ExpressionCompiler {
 			for (char c : operator.getSymbol().toCharArray()) {
 				opChars.add(c);
 			}
-			opMap.put(operator.getSymbol(), operator);
+			opMap.set(operator.getSymbol(), operator);
 		}
 	}
 	
@@ -46,8 +44,8 @@ public class ExpressionCompiler {
 					if (depth != 1) {
 						continue;
 					}
-					if (op && tokenStart != i) {
-						tokens.add(compileToken(expression.substring(tokenStart, i), op, exp));
+					if (!op && tokenStart != i) {
+						tokens.add(compileToken(expression.substring(tokenStart, i), false, exp));
 					}
 					tokenStart = i;
 					continue;
@@ -63,18 +61,24 @@ public class ExpressionCompiler {
 			if (depth != 0) {
 				continue;
 			}
-			boolean charOp = opChars.contains(c);
-			if (charOp ^ op) {
-				tokens.add(compileToken(expression.substring(tokenStart, i), op, exp));
-				op = charOp;
-				tokenStart = i;
+			Operator operator = opMap.getFrom(expression, i);
+			if (operator != null) {
+				if (!op) {
+					tokens.add(compileToken(expression.substring(tokenStart, i), false, exp));
+				}
+				op = true;
+				tokens.add(operator);
+				i += operator.getSymbol().length() - 1;
+				tokenStart = i + 1;
+				continue;
 			}
+			op = false;
 		}
 		if (depth != 0) {
 			throw new ExpressionCompilationException("Unbalanced parenthesis");
 		}
 		if (tokenStart != end) {
-			tokens.add(compileToken(expression.substring(tokenStart, end), op, exp));
+			tokens.add(compileToken(expression.substring(tokenStart, end), false, exp));
 		}
 		return reduceTokens(tokens);
 	}

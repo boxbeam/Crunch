@@ -2,6 +2,10 @@ package redempt.crunch;
 
 import redempt.crunch.exceptions.ExpressionEvaluationException;
 
+/**
+ * An expression which has been compiled with {@link Crunch#compileExpression(String)} and can be evaluated with {@link CompiledExpression#evaluate(double...)}
+ * @author Redempt
+ */
 public class CompiledExpression {
 	
 	protected double[] variableValues;

@@ -45,7 +45,7 @@ public class ExpressionCompiler {
 						continue;
 					}
 					if (!op && tokenStart != i) {
-						tokens.add(compileToken(expression.substring(tokenStart, i), false, exp));
+						tokens.add(compileToken(expression.substring(tokenStart, i), exp));
 					}
 					tokenStart = i;
 					continue;
@@ -64,7 +64,7 @@ public class ExpressionCompiler {
 			Operator operator = opMap.getFrom(expression, i);
 			if (operator != null) {
 				if (!op) {
-					tokens.add(compileToken(expression.substring(tokenStart, i), false, exp));
+					tokens.add(compileToken(expression.substring(tokenStart, i), exp));
 				}
 				op = true;
 				tokens.add(operator);
@@ -78,7 +78,7 @@ public class ExpressionCompiler {
 			throw new ExpressionCompilationException("Unbalanced parenthesis");
 		}
 		if (tokenStart != end) {
-			tokens.add(compileToken(expression.substring(tokenStart, end), false, exp));
+			tokens.add(compileToken(expression.substring(tokenStart, end), exp));
 		}
 		return reduceTokens(tokens);
 	}
@@ -146,14 +146,7 @@ public class ExpressionCompiler {
 		tokens.set(index - 1, new Operation(op, (Value) prev, (Value) next));
 	}
 	
-	private static Token compileToken(String str, boolean op, CompiledExpression exp) {
-		if (op) {
-			Operator operator = opMap.get(str);
-			if (operator == null) {
-				throw new ExpressionCompilationException("Invalid operator '" + str + "'");
-			}
-			return operator;
-		}
+	private static Token compileToken(String str, CompiledExpression exp) {
 		if (str.charAt(0) == VAR_CHAR) {
 			return new Variable(exp, Integer.parseInt(str.substring(1)) - 1);
 		}

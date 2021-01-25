@@ -45,7 +45,7 @@ class CharTree {
 	private static class Node {
 		
 		private Operator value;
-		private Node[] children = new Node[256];
+		private Node[] children = new Node[512];
 		
 		public Node getNode(char c) {
 			return children[c];

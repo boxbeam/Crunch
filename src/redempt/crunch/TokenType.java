@@ -1,6 +1,6 @@
 package redempt.crunch;
 
-public enum TokenType {
+enum TokenType {
 	
 	OPERATOR,
 	LITERAL_VALUE,

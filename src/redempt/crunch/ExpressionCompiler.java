@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class ExpressionCompiler {
+class ExpressionCompiler {
 	
 	private static CharTree opMap = new CharTree();
 	private static final char VAR_CHAR = '$';

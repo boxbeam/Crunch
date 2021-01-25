@@ -1,6 +1,6 @@
 package redempt.crunch;
 
-public class Variable implements Value {
+class Variable implements Value {
 	
 	private int index;
 	protected CompiledExpression expression;

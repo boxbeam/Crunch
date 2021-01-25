@@ -1,6 +1,6 @@
 package redempt.crunch;
 
-public class LiteralValue implements Value {
+class LiteralValue implements Value {
 	
 	private double value;
 	

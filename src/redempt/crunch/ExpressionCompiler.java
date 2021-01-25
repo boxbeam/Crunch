@@ -9,15 +9,11 @@ import java.util.Set;
 
 public class ExpressionCompiler {
 	
-	private static Set<Character> opChars = new HashSet<>();
 	private static CharTree opMap = new CharTree();
 	private static final char VAR_CHAR = '$';
 	
 	static {
 		for (Operator operator : Operator.values()) {
-			for (char c : operator.getSymbol().toCharArray()) {
-				opChars.add(c);
-			}
 			opMap.set(operator.getSymbol(), operator);
 		}
 	}
@@ -33,7 +29,7 @@ public class ExpressionCompiler {
 	private static Value compileValue(String expression, CompiledExpression exp, int begin, int end) {
 		List<Token> tokens = new ArrayList<>();
 		int depth = 0;
-		boolean op = opChars.contains(expression.charAt(begin));
+		boolean op = opMap.containsFirstChar(expression.charAt(begin));
 		int tokenStart = begin;
 		char[] chars = expression.toCharArray();
 		for (int i = begin; i < end; i++) {

@@ -9,6 +9,10 @@ import java.util.function.Function;
  */
 public enum Operator implements Token {
 	
+	RANDOM_DOUBLE("rand", 6, d -> CompiledExpression.random.nextDouble() * d),
+	ROUND("round", 6, d -> (double) Math.round(d)),
+	CEILING("ceil", 6, d -> Math.ceil(d)),
+	FLOOR("floor", 6, d -> Math.floor(d)),
 	ARC_SINE("asin", 6, d -> Math.asin(d)),
 	ARC_COSINE("acos", 6, d -> Math.acos(d)),
 	ARC_TANGENT("atan", 6, d -> Math.acos(d)),

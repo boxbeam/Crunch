@@ -2,12 +2,15 @@ package redempt.crunch;
 
 import redempt.crunch.exceptions.ExpressionEvaluationException;
 
+import java.util.Random;
+
 /**
  * An expression which has been compiled with {@link Crunch#compileExpression(String)} and can be evaluated with {@link CompiledExpression#evaluate(double...)}
  * @author Redempt
  */
 public class CompiledExpression {
 	
+	protected static Random random = new Random();
 	protected double[] variableValues;
 	private int variableCount;
 	private Value value;

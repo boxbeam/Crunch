@@ -7,13 +7,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-class ExpressionCompiler {
+public class ExpressionCompiler {
 	
 	private static CharTree opMap = new CharTree();
 	private static final char VAR_CHAR = '$';
 	
 	static {
 		for (Operator operator : Operator.values()) {
+			if (operator.isInternal()) {
+				continue;
+			}
 			opMap.set(operator.getSymbol(), operator);
 		}
 	}
@@ -80,6 +83,16 @@ class ExpressionCompiler {
 	}
 	
 	private static Value reduceTokens(List<Token> tokens) {
+		for (int i = 0; i < tokens.size(); i++) {
+			Token token = tokens.get(i);
+			if (token != Operator.SUBTRACT) {
+				continue;
+			}
+			if (i == 0 || tokens.get(i - 1).getType() == TokenType.OPERATOR) {
+				tokens.set(i, Operator.NEGATE);
+				createOperation(tokens, i);
+			}
+		}
 		while (tokens.size() > 1) {
 			int maxInd = -1;
 			int priority = -1;

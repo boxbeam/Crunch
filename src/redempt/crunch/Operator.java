@@ -10,7 +10,7 @@ import java.util.function.Function;
 public enum Operator implements Token {
 	
 	RANDOM_DOUBLE("rand", 6, d -> CompiledExpression.random.nextDouble() * d),
-	ROUND("round", 6, d -> (double) Math.round(d)),
+	ROUND("round", 6, d -> Double.valueOf(Math.round(d))),
 	CEILING("ceil", 6, d -> Math.ceil(d)),
 	FLOOR("floor", 6, d -> Math.floor(d)),
 	ARC_SINE("asin", 6, d -> Math.asin(d)),
@@ -27,25 +27,37 @@ public enum Operator implements Token {
 	DIVIDE("/", 4, (a, b) -> a / b),
 	MODULUS("%", 4, (a, b) -> a % b),
 	ADD("+", 3, (a, b) -> a + b),
-	SUBTRACT("-", 3, (a, b) -> a - b);
+	SUBTRACT("-", 3, (a, b) -> a - b),
+	NEGATE("-", 0, d -> -d, true);
 	
 	private String name;
 	private boolean unary;
 	private BiFunction<Double, Double, Double> operate;
 	private int priority;
+	private boolean internal;
 	
 	private Operator(String name, int priority, BiFunction<Double, Double, Double> operate) {
+		this(name, priority, operate, false);
+	}
+	
+	private Operator(String name, int priority, BiFunction<Double, Double, Double> operate, boolean internal) {
 		this.name = name;
 		this.operate = operate;
 		this.unary = false;
 		this.priority = priority;
+		this.internal = internal;
 	}
 	
 	private Operator(String name, int priority, Function<Double, Double> operate) {
+		this(name, priority, operate, false);
+	}
+	
+	private Operator(String name, int priority, Function<Double, Double> operate, boolean internal) {
 		this.name = name;
 		this.operate = (a, b) -> operate.apply(a);
 		this.unary = true;
 		this.priority = priority;
+		this.internal = internal;
 	}
 	
 	/**
@@ -87,6 +99,15 @@ public enum Operator implements Token {
 	 */
 	public double operate(double value) {
 		return operate.apply(value, 0d);
+	}
+	
+	/**
+	 * @return Whether this Operator can only be used internally
+	 *
+	 * If true, it will not be generated simply by typing its symbol
+	 */
+	public boolean isInternal() {
+		return internal;
 	}
 	
 	@Override

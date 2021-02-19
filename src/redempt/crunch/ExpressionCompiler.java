@@ -64,6 +64,8 @@ public class ExpressionCompiler {
 			if (operator != null) {
 				if (!op) {
 					tokens.add(compileToken(expression.substring(tokenStart, i), exp));
+				} else if (operator == Operator.SUBTRACT) {
+					operator = Operator.NEGATE;
 				}
 				op = true;
 				tokens.add(operator);
@@ -83,16 +85,6 @@ public class ExpressionCompiler {
 	}
 	
 	private static Value reduceTokens(List<Token> tokens) {
-		for (int i = 0; i < tokens.size(); i++) {
-			Token token = tokens.get(i);
-			if (token != Operator.SUBTRACT) {
-				continue;
-			}
-			if (i == 0 || tokens.get(i - 1).getType() == TokenType.OPERATOR) {
-				tokens.set(i, Operator.NEGATE);
-				createOperation(tokens, i);
-			}
-		}
 		while (tokens.size() > 1) {
 			int maxInd = -1;
 			int priority = -1;

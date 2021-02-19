@@ -28,7 +28,7 @@ public enum Operator implements Token {
 	MODULUS("%", 4, (a, b) -> a % b),
 	ADD("+", 3, (a, b) -> a + b),
 	SUBTRACT("-", 3, (a, b) -> a - b),
-	NEGATE("-", 0, d -> -d, true);
+	NEGATE("-", 10, d -> -d, true);
 	
 	private String name;
 	private boolean unary;

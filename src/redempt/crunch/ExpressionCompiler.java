@@ -2,8 +2,9 @@ package redempt.crunch;
 
 import redempt.crunch.exceptions.ExpressionCompilationException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
+import java.util.ListIterator;
+import java.util.TreeSet;
 
 public class ExpressionCompiler {
 	
@@ -26,41 +27,40 @@ public class ExpressionCompiler {
 	static CompiledExpression compile(String expression) {
 		CompiledExpression exp = new CompiledExpression();
 		expression = expression.replace(" ", "");
-		Value val = compileValue(expression, exp, 0, expression.length());
+		Value val = compileValue(expression, exp, 0).getFirst();
 		exp.setValue(val);
 		return exp;
 	}
 	
-	private static Value compileValue(String expression, CompiledExpression exp, int begin, int end) {
-		List<Token> tokens = new ArrayList<>();
-		int depth = 0;
+	private static Pair<Value, Integer> compileValue(String expression, CompiledExpression exp, int begin) {
+		LinkedList<Token> tokens = new LinkedList<>();
 		boolean op = opMap.containsFirstChar(expression.charAt(begin));
+		boolean closed = false;
 		int tokenStart = begin;
 		char[] chars = expression.toCharArray();
-		for (int i = begin; i < end; i++) {
+		int i;
+		loop:
+		for (i = begin; i < expression.length(); i++) {
 			char c = chars[i];
 			switch (c) {
 				case '(':
-					depth++;
-					if (depth != 1) {
-						continue;
-					}
 					if (!op && tokenStart != i) {
 						tokens.add(compileToken(expression.substring(tokenStart, i), exp));
 					}
+					Pair<Value, Integer> inner = compileValue(expression, exp, i + 1);
+					i += inner.getSecond() + 1;
+					tokens.add(inner.getFirst());
 					tokenStart = i;
+					op = true;
 					continue;
 				case ')':
-					depth--;
-					if (depth == 0) {
-						tokens.add(compileValue(expression, exp, tokenStart + 1, i));
-						tokenStart = i + 1;
-						op = true;
+					if (begin == 0) {
+						throw new ExpressionCompilationException("Unbalanced parenthesis");
 					}
-					continue;
-			}
-			if (depth != 0) {
-				continue;
+//					tokens.add(compileValue(expression, exp, tokenStart + 1, i));
+//					tokenStart = i + 1;
+					closed = true;
+					break loop;
 			}
 			Operator operator = opMap.getFrom(expression, i);
 			if (operator != null) {
@@ -77,76 +77,88 @@ public class ExpressionCompiler {
 			}
 			op = false;
 		}
-		if (depth != 0) {
+		if (begin != 0 && !closed) {
 			throw new ExpressionCompilationException("Unbalanced parenthesis");
 		}
-		if (tokenStart != end) {
-			tokens.add(compileToken(expression.substring(tokenStart, end), exp));
+		if (tokenStart < i && i <= expression.length() && !op) {
+			tokens.add(compileToken(expression.substring(tokenStart, i), exp));
 		}
-		return reduceTokens(tokens);
+		return new Pair<>(reduceTokens(tokens), i - begin);
 	}
 	
-	private static Value reduceTokens(List<Token> tokens) {
-		while (tokens.size() > 1) {
-			int maxInd = -1;
-			int priority = -1;
-			for (int i = 0; i < tokens.size(); i++) {
-				Token token = tokens.get(i);
+	private static Value reduceTokens(LinkedList<Token> tokens) {
+		TreeSet<Integer> set = new TreeSet<>();
+		int max = -1;
+		for (Token token : tokens) {
+			if (token.getType() == TokenType.OPERATOR) {
+				Operator op = (Operator) token;
+				set.add(op.getPriority());
+				if (op.getPriority() > max) {
+					max = op.getPriority();
+				}
+			}
+		}
+		while (set.size() > 0) {
+			int priority = set.floor(max);
+			ListIterator<Token> iter = tokens.listIterator();
+			while (iter.hasNext()) {
+				Token token = iter.next();
 				if (token.getType() != TokenType.OPERATOR) {
 					continue;
 				}
 				Operator op = (Operator) token;
-				if (priority == -1 || op.getPriority() >= priority) {
-					priority = op.getPriority();
-					maxInd = i;
+				if (op.getPriority() != priority) {
+					continue;
 				}
+				createOperation(iter, op);
 			}
-			if (priority == -1) {
-				throw new ExpressionCompilationException("Expression has multiple values without operator between them");
-			}
-			createOperation(tokens, maxInd);
+			set.remove(priority);
 		}
-		Token token = tokens.get(0);
+		Token token = tokens.getFirst();
 		if (!(token instanceof Value)) {
 			throw new ExpressionCompilationException("Token is not a value: " + token.toString());
 		}
 		return (Value) tokens.get(0);
 	}
 	
-	private static void createOperation(List<Token> tokens, int index) {
-		Operator op = (Operator) tokens.get(index);
-		if (index + 1 >= tokens.size()) {
+	private static void createOperation(ListIterator<Token> iter, Operator op) {
+		if (!iter.hasNext()) {
 			throw new ExpressionCompilationException("Operator " + op + " has no following operand");
 		}
 		if (op.isUnary()) {
-			Token next = tokens.remove(index + 1);
+			Token next = iter.next();
+			iter.remove();
+			iter.previous();
 			if (next.getType() == TokenType.OPERATOR) {
 				throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 			}
 			if (next.getType() == TokenType.LITERAL_VALUE) {
 				Value literal = (Value) next;
-				tokens.set(index, new LiteralValue(op.operate(literal.getValue())));
+				iter.set(new LiteralValue(op.operate(literal.getValue())));
 				return;
 			}
-			tokens.set(index, new Operation(op, (Value) next));
+			iter.set(new Operation(op, (Value) next));
 			return;
 		}
-		if (index < 1) {
+		if (!iter.hasPrevious()) {
 			throw new ExpressionCompilationException("Operator " + op + " has no leading operand");
 		}
-		Token prev = tokens.get(index - 1);
-		Token next = tokens.get(index + 1);
+		Token next = iter.next();
+		iter.remove();
+		iter.previous();
+		Token prev = iter.previous();
+		iter.remove();
+		iter.next();
 		if (prev.getType() == TokenType.OPERATOR || next.getType() == TokenType.OPERATOR) {
 			throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 		}
-		tokens.subList(index - 1, index + 1).clear();
 		if (prev.getType() == TokenType.LITERAL_VALUE && next.getType() == TokenType.LITERAL_VALUE) {
 			Value lit1 = (Value) prev;
 			Value lit2 = (Value) next;
-			tokens.set(index - 1, new LiteralValue(op.operate(lit1.getValue(), lit2.getValue())));
+			iter.set(new LiteralValue(op.operate(lit1.getValue(), lit2.getValue())));
 			return;
 		}
-		tokens.set(index - 1, new Operation(op, (Value) prev, (Value) next));
+		iter.set(new Operation(op, (Value) prev, (Value) next));
 	}
 	
 	private static Token compileToken(String str, CompiledExpression exp) {

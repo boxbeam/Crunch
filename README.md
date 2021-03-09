@@ -160,7 +160,7 @@ Expression: `6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7
 |:-------|-------:|
 |970μs |559μs   |
 
-As you can see, Crunch is somewhat faster at compiling short expressions, while EvalEx is somewhat faster at compiling long ones. It's worth noting, however, that EvalEx actually cheats in this regard - it doesn't spend the time compiling the expression, and instead spends it on initializing its operators and other values. The size of the input will have almost no effect on the time it takes to initialize.
+As you can see, Crunch is much faster at compiling short expressions, and scales well to compiling longer ones as well. EvalEx's time to 'compile' stays roughly the same because it doesn't actually compile the expression in its initializer, and does nothing with the string until evaluate is called.
 
 ## Evaluation
 

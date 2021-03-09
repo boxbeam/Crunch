@@ -57,8 +57,6 @@ public class ExpressionCompiler {
 					if (begin == 0) {
 						throw new ExpressionCompilationException("Unbalanced parenthesis");
 					}
-//					tokens.add(compileValue(expression, exp, tokenStart + 1, i));
-//					tokenStart = i + 1;
 					closed = true;
 					break loop;
 			}

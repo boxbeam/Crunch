@@ -183,6 +183,6 @@ Expression: `3*$1` (for EvalEx, `3*x`)
 |:-------|-------:|
 |3,678μs |31,654μs|
 
-In both cases, Crunch is over ten times faster at evaluation than EvalEx at evaluation.
+In both cases, Crunch is about 10-20 times faster for evaluation.
 
 There is another library, [java.math.expression.parser](https://github.com/sbesada/java.math.expression.parser), which also serves a similar purpose, but was not included in this benchmark because rather than compiling and then evaluating expressions, it evaluates them as strings once. This method will obviously be slower than compiling an expression for multiple evaluations, though according to its own benchmarks, this library is still slower to evaluate a long expression a single time than Crunch is to compile and evaluate it.

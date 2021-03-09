@@ -28,7 +28,7 @@ class Variable implements Value {
 		return "$" + (index + 1);
 	}
 	
-	public Variable clone() {
+	public Variable getClone() {
 		return new Variable(expression, index);
 	}
 	

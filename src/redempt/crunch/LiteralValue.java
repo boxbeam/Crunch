@@ -22,7 +22,7 @@ class LiteralValue implements Value {
 		return value + "";
 	}
 	
-	public LiteralValue clone() {
+	public LiteralValue getClone() {
 		return new LiteralValue(value);
 	}
 	

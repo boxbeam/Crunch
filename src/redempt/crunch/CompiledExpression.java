@@ -81,7 +81,7 @@ public class CompiledExpression {
 	 */
 	public CompiledExpression clone() {
 		CompiledExpression clone = new CompiledExpression();
-		Value cloned = value.clone();
+		Value cloned = value.getClone();
 		clone.setValue(cloned);
 		return clone;
 	}

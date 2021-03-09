@@ -9,6 +9,14 @@ import java.util.function.Function;
  */
 public enum Operator implements Token {
 	
+	BOOLEAN_OR("|", 8, (a, b) -> (a == 1 || b == 1) ? 1d : 0d),
+	BOOLEAN_AND("&", 8, (a, b) -> (a == 1 && b == 1) ? 1d : 0d),
+	GREATER_THAN(">", 8, (a, b) -> a > b ? 1d : 0d),
+	LESS_THAN("<", 8, (a, b) -> a < b ? 1d : 0d),
+	EQUAL_TO("=", 0, (a, b) -> a.equals(b) ? 1d : 0d),
+	GREATER_THAN_OR_EQUAL_TO(">=", 8, (a, b) -> a >= b ? 1d : 0d),
+	LESS_THAN_OR_EQUAL_TO("<=", 8, (a, b) -> a <= b ? 1d : 0d),
+	BOOLEAN_NOT("!", 9, d -> d == 0 ? 1d : 0d),
 	RANDOM_DOUBLE("rand", 6, d -> CompiledExpression.random.nextDouble() * d),
 	ROUND("round", 6, d -> Double.valueOf(Math.round(d))),
 	CEILING("ceil", 6, d -> Math.ceil(d)),

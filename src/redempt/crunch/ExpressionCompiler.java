@@ -3,13 +3,12 @@ package redempt.crunch;
 import redempt.crunch.exceptions.ExpressionCompilationException;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ExpressionCompiler {
 	
-	private static CharTree opMap = new CharTree();
+	private static CharTree<Operator> opMap = new CharTree<>();
+	private static CharTree<Constant> constMap = new CharTree<>();
 	private static final char VAR_CHAR = '$';
 	
 	static {
@@ -18,6 +17,9 @@ public class ExpressionCompiler {
 				continue;
 			}
 			opMap.set(operator.getSymbol(), operator);
+		}
+		for (Constant constant : Constant.values()) {
+			constMap.set(constant.toString(), constant);
 		}
 	}
 	
@@ -122,7 +124,7 @@ public class ExpressionCompiler {
 				throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 			}
 			if (next.getType() == TokenType.LITERAL_VALUE) {
-				LiteralValue literal = (LiteralValue) next;
+				Value literal = (Value) next;
 				tokens.set(index, new LiteralValue(op.operate(literal.getValue())));
 				return;
 			}
@@ -139,8 +141,8 @@ public class ExpressionCompiler {
 		}
 		tokens.subList(index - 1, index + 1).clear();
 		if (prev.getType() == TokenType.LITERAL_VALUE && next.getType() == TokenType.LITERAL_VALUE) {
-			LiteralValue lit1 = (LiteralValue) prev;
-			LiteralValue lit2 = (LiteralValue) next;
+			Value lit1 = (Value) prev;
+			Value lit2 = (Value) next;
 			tokens.set(index - 1, new LiteralValue(op.operate(lit1.getValue(), lit2.getValue())));
 			return;
 		}
@@ -151,7 +153,8 @@ public class ExpressionCompiler {
 		if (str.charAt(0) == VAR_CHAR) {
 			return new Variable(exp, Integer.parseInt(str.substring(1)) - 1);
 		}
-		return new LiteralValue(Double.parseDouble(str));
+		Constant constant = constMap.getFrom(str, 0);
+		return constant != null && constant.toString().equals(str) ? constant : new LiteralValue(Double.parseDouble(str));
 	}
 	
 }

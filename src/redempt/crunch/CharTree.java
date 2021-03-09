@@ -1,10 +1,10 @@
 package redempt.crunch;
 
-class CharTree {
+class CharTree<T> {
 	
 	private Node root = new Node();
 	
-	public void set(String str, Operator op) {
+	public void set(String str, T op) {
 		Node node = root;
 		for (char c : str.toCharArray()) {
 			node = node.getOrCreateNode(c);
@@ -12,7 +12,7 @@ class CharTree {
 		node.setValue(op);
 	}
 	
-	public Operator get(String str) {
+	public T get(String str) {
 		Node node = root;
 		for (char c : str.toCharArray()) {
 			node = node.getNode(c);
@@ -20,23 +20,23 @@ class CharTree {
 				return null;
 			}
 		}
-		return node.getValue();
+		return (T) node.getValue();
 	}
 	
 	public boolean containsFirstChar(char c) {
 		return root.getNode(c) != null;
 	}
 	
-	public Operator getFrom(String str, int index) {
+	public T getFrom(String str, int index) {
 		Node node = root;
-		Operator val = null;
+		T val = null;
 		for (int i = index; i < str.length(); i++) {
 			node = node.getNode(str.charAt(i));
 			if (node == null) {
 				return val;
 			}
 			if (node.getValue() != null) {
-				val = node.getValue();
+				val = (T) node.getValue();
 			}
 		}
 		return val;
@@ -44,7 +44,7 @@ class CharTree {
 	
 	private static class Node {
 		
-		private Operator value;
+		private Object value;
 		private Node[] children = new Node[256];
 		
 		public Node getNode(char c) {
@@ -58,11 +58,11 @@ class CharTree {
 			return children[c];
 		}
 		
-		public Operator getValue() {
+		public Object getValue() {
 			return value;
 		}
 		
-		public void setValue(Operator value) {
+		public void setValue(Object value) {
 			this.value = value;
 		}
 		

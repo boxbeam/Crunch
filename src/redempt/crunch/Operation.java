@@ -39,10 +39,10 @@ class Operation implements Value {
 				first.toString() + operator.getSymbol() + second.toString()) + ")";
 	}
 	
-	public Operation clone() {
+	public Operation getClone() {
 		return operator.isUnary() ?
-				new Operation(operator, first.clone()) :
-				new Operation(operator, first.clone(), second.clone());
+				new Operation(operator, first.getClone()) :
+				new Operation(operator, first.getClone(), second.getClone());
 	}
 	
 }

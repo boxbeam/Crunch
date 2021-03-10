@@ -1,12 +1,18 @@
 package redempt.crunch;
 
 import redempt.crunch.exceptions.ExpressionCompilationException;
+import redempt.crunch.functional.ArgumentList;
+import redempt.crunch.functional.EvaluationEnvironment;
+import redempt.crunch.functional.Function;
+import redempt.crunch.functional.FunctionCall;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.TreeSet;
 
-public class ExpressionCompiler {
+class ExpressionCompiler {
 	
 	private static CharTree<Operator> opMap = new CharTree<>();
 	private static CharTree<Constant> constMap = new CharTree<>();
@@ -24,15 +30,15 @@ public class ExpressionCompiler {
 		}
 	}
 	
-	static CompiledExpression compile(String expression) {
+	static CompiledExpression compile(String expression, EvaluationEnvironment env) {
 		CompiledExpression exp = new CompiledExpression();
 		expression = expression.replace(" ", "");
-		Value val = compileValue(expression, exp, 0).getFirst();
+		Value val = compileValue(expression, exp, env, 0, false).getFirst();
 		exp.setValue(val);
 		return exp;
 	}
 	
-	private static Pair<Value, Integer> compileValue(String expression, CompiledExpression exp, int begin) {
+	private static Pair<Value, Integer> compileValue(String expression, CompiledExpression exp, EvaluationEnvironment env, int begin, boolean parenthetical) {
 		LinkedList<Token> tokens = new LinkedList<>();
 		boolean op = opMap.containsFirstChar(expression.charAt(begin));
 		boolean closed = false;
@@ -44,17 +50,26 @@ public class ExpressionCompiler {
 			char c = chars[i];
 			switch (c) {
 				case '(':
+					if (tokens.size() > 0 && tokens.getLast().getType() == TokenType.FUNCTION) {
+						Pair<ArgumentList, Integer> args = compileArgumentList(expression, exp, env, i + 1);
+						tokens.add(args.getFirst());
+						i += args.getSecond();
+						tokenStart = i;
+						op = true;
+						continue;
+					}
 					if (!op && tokenStart != i) {
 						tokens.add(compileToken(expression.substring(tokenStart, i), exp));
 					}
-					Pair<Value, Integer> inner = compileValue(expression, exp, i + 1);
+					Pair<Value, Integer> inner = compileValue(expression, exp, env, i + 1, true);
 					i += inner.getSecond() + 1;
 					tokens.add(inner.getFirst());
 					tokenStart = i;
 					op = true;
 					continue;
 				case ')':
-					if (begin == 0) {
+				case ',':
+					if (!parenthetical) {
 						throw new ExpressionCompilationException("Unbalanced parenthesis");
 					}
 					closed = true;
@@ -73,9 +88,15 @@ public class ExpressionCompiler {
 				tokenStart = i + 1;
 				continue;
 			}
+			Function func = env.getFunctions().getFrom(expression, i);
+			if (func != null) {
+				tokens.add(func);
+				i += func.getName().length() - 1;
+				tokenStart = i + 1;
+			}
 			op = false;
 		}
-		if (begin != 0 && !closed) {
+		if (parenthetical && !closed) {
 			throw new ExpressionCompilationException("Unbalanced parenthesis");
 		}
 		if (tokenStart < i && i <= expression.length() && !op) {
@@ -84,10 +105,57 @@ public class ExpressionCompiler {
 		return new Pair<>(reduceTokens(tokens), i - begin);
 	}
 	
+	private static Pair<ArgumentList, Integer> compileArgumentList(String expression, CompiledExpression exp, EvaluationEnvironment env, int start) {
+		List<Value> values = new ArrayList<>();
+		int i = start;
+		while (i < expression.length() && expression.charAt(i) != ')') {
+			Pair<Value, Integer> result = compileValue(expression, exp, env, i, true);
+			i += result.getSecond() + 1;
+			switch (expression.charAt(i - 1)) {
+				case ')':
+				case ',':
+					break;
+				default:
+					throw new ExpressionCompilationException("Function argument lists must be separated by commas");
+			}
+			values.add(result.getFirst());
+		}
+		if (values.size() == 0) {
+			i++;
+		}
+		if (expression.charAt(i - 1) != ')') {
+			throw new ExpressionCompilationException("Unbalanced parenthesis");
+		}
+		Value[] valueArray = values.toArray(new Value[values.size()]);
+		return new Pair<>(new ArgumentList(valueArray), i - start);
+	}
+	
 	private static Value reduceTokens(LinkedList<Token> tokens) {
 		TreeSet<Integer> set = new TreeSet<>();
 		int max = -1;
-		for (Token token : tokens) {
+		ListIterator<Token> iter = tokens.listIterator();
+		while (iter.hasNext()) {
+			Token token = iter.next();
+			if (token.getType() == TokenType.FUNCTION) {
+				if (!iter.hasNext()) {
+					throw new ExpressionCompilationException("Function must be followed by argument list");
+				}
+				Token next = iter.next();
+				iter.previous();
+				iter.previous();
+				if (next.getType() != TokenType.ARGUMENT_LIST) {
+					throw new ExpressionCompilationException("Function must be followed by argument list");
+				}
+				Function func = (Function) token;
+				ArgumentList list = (ArgumentList) next;
+				if (list.getArguments().length != func.getArgCount()) {
+					throw new ExpressionCompilationException("Function '" + func.getName() + "' takes " + func.getArgCount() + " args, but got " + list.getArguments().length);
+				}
+				iter.remove();
+				iter.next();
+				iter.set(new FunctionCall(func, list.getArguments()));
+				continue;
+			}
 			if (token.getType() == TokenType.OPERATOR) {
 				Operator op = (Operator) token;
 				set.add(op.getPriority());
@@ -98,7 +166,7 @@ public class ExpressionCompiler {
 		}
 		while (set.size() > 0) {
 			int priority = set.floor(max);
-			ListIterator<Token> iter = tokens.listIterator();
+			iter = tokens.listIterator();
 			while (iter.hasNext()) {
 				Token token = iter.next();
 				if (token.getType() != TokenType.OPERATOR) {

@@ -1,5 +1,7 @@
 package redempt.crunch;
 
+import redempt.crunch.functional.EvaluationEnvironment;
+
 /**
  * Public API methods for compiling expressions
  * @author Redempt
@@ -14,7 +16,19 @@ public class Crunch {
 	 * @return The compiled expression
 	 */
 	public static CompiledExpression compileExpression(String expression) {
-		return ExpressionCompiler.compile(expression);
+		return ExpressionCompiler.compile(expression, new EvaluationEnvironment());
+	}
+	
+	/**
+	 * Compiles a mathematical expression into a CompiledExpression. Variables must be integers starting at 1 prefixed
+	 * with $. Supported operations can be found in {@link Operator}, which lists the operations and their symbols
+	 * for use in expressions. Parenthesis are also supported.
+	 * @param expression The expression to compile
+	 * @param env The EvaluationEnvironment providing custom functions that can be used in the expression
+	 * @return The compiled expression
+	 */
+	public static CompiledExpression compileExpression(String expression, EvaluationEnvironment env) {
+		return ExpressionCompiler.compile(expression, env);
 	}
 	
 	/**
@@ -25,7 +39,7 @@ public class Crunch {
 	 * @return The value of the expression
 	 */
 	public static double evaluateExpression(String expression, double... varValues) {
-		CompiledExpression exp = ExpressionCompiler.compile(expression);
+		CompiledExpression exp = ExpressionCompiler.compile(expression, new EvaluationEnvironment());
 		return exp.evaluate(varValues);
 	}
 	

@@ -59,6 +59,16 @@ exp.evaluate(27, 3); //This will return 9
 
 Spaces are ignored entirely, so if you don't feel the need to add them, you may remove them.
 
+You can also define your own functions fairly simply:
+
+```java
+EvaluationEnvironment env = new EvaluationEnvironment();
+//                name  # args   lambda to do logic
+env.addFunction("mult", 2, (d) -> d[0] * d[1]);
+CompiledExpression exp = Crunch.compileExpression("mult(2, 3)", env);
+exp.evaluate(); //This will return 6
+```
+
 In the case that you only need to evaluate an expression once and never again, you can use `Crunch#evaluateExpression`:
 
 ```java

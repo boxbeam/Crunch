@@ -108,17 +108,19 @@ class ExpressionCompiler {
 	private static Pair<ArgumentList, Integer> compileArgumentList(String expression, CompiledExpression exp, EvaluationEnvironment env, int start) {
 		List<Value> values = new ArrayList<>();
 		int i = start;
+		loop:
 		while (i < expression.length() && expression.charAt(i) != ')') {
 			Pair<Value, Integer> result = compileValue(expression, exp, env, i, true);
 			i += result.getSecond() + 1;
+			values.add(result.getFirst());
 			switch (expression.charAt(i - 1)) {
 				case ')':
+					break loop;
 				case ',':
 					break;
 				default:
 					throw new ExpressionCompilationException("Function argument lists must be separated by commas");
 			}
-			values.add(result.getFirst());
 		}
 		if (values.size() == 0) {
 			i++;

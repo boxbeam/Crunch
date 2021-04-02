@@ -1,5 +1,5 @@
 # Crunch
-A library for compiling and evaluating mathematical expressions with variables
+The fastest Java library for compiling and evaluating mathematical expressions with variables
 
 # Installation for Development
 

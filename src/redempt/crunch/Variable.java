@@ -1,6 +1,8 @@
 package redempt.crunch;
 
-class Variable implements Value {
+import redempt.crunch.token.Value;
+
+public class Variable implements Value {
 	
 	private int index;
 	protected CompiledExpression expression;

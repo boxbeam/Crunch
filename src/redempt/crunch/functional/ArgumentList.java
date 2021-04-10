@@ -1,8 +1,8 @@
 package redempt.crunch.functional;
 
-import redempt.crunch.Token;
+import redempt.crunch.token.Token;
 import redempt.crunch.TokenType;
-import redempt.crunch.Value;
+import redempt.crunch.token.Value;
 
 /**
  * Represents a list of arguments being passed to a Function

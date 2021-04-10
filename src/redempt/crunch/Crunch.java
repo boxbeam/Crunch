@@ -1,12 +1,15 @@
 package redempt.crunch;
 
 import redempt.crunch.functional.EvaluationEnvironment;
+import redempt.crunch.token.Operator;
 
 /**
  * Public API methods for compiling expressions
  * @author Redempt
  */
 public class Crunch {
+	
+	private static final EvaluationEnvironment DEFAULT_EVALUATION_ENVIRONMENT = new EvaluationEnvironment();
 	
 	/**
 	 * Compiles a mathematical expression into a CompiledExpression. Variables must be integers starting at 1 prefixed
@@ -16,7 +19,7 @@ public class Crunch {
 	 * @return The compiled expression
 	 */
 	public static CompiledExpression compileExpression(String expression) {
-		return ExpressionCompiler.compile(expression, new EvaluationEnvironment());
+		return ExpressionCompiler.compile(expression, DEFAULT_EVALUATION_ENVIRONMENT);
 	}
 	
 	/**
@@ -39,7 +42,7 @@ public class Crunch {
 	 * @return The value of the expression
 	 */
 	public static double evaluateExpression(String expression, double... varValues) {
-		CompiledExpression exp = ExpressionCompiler.compile(expression, new EvaluationEnvironment());
+		CompiledExpression exp = ExpressionCompiler.compile(expression, DEFAULT_EVALUATION_ENVIRONMENT);
 		return exp.evaluate(varValues);
 	}
 	

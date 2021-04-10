@@ -1,4 +1,6 @@
-package redempt.crunch;
+package redempt.crunch.token;
+
+import redempt.crunch.TokenType;
 
 import java.util.Locale;
 

@@ -1,8 +1,8 @@
 package redempt.crunch;
 
 import redempt.crunch.exceptions.ExpressionEvaluationException;
-
-import java.util.Random;
+import redempt.crunch.token.Operation;
+import redempt.crunch.token.Value;
 
 /**
  * An expression which has been compiled with {@link Crunch#compileExpression(String)} and can be evaluated with {@link CompiledExpression#evaluate(double...)}
@@ -10,7 +10,6 @@ import java.util.Random;
  */
 public class CompiledExpression {
 	
-	protected static Random random = new Random();
 	protected double[] variableValues;
 	private int variableCount;
 	private Value value;

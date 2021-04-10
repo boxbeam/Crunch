@@ -1,17 +1,19 @@
-package redempt.crunch;
+package redempt.crunch.token;
 
-class Operation implements Value {
+import redempt.crunch.TokenType;
+
+public class Operation implements Value {
 	
 	private Operator operator;
 	private Value first;
 	private Value second;
 	
-	protected Operation(Operator operator, Value value) {
+	public Operation(Operator operator, Value value) {
 		this.operator = operator;
 		this.first = value;
 	}
 	
-	protected Operation(Operator operator, Value first, Value second) {
+	public Operation(Operator operator, Value first, Value second) {
 		this.operator = operator;
 		this.first = first;
 		this.second = second;

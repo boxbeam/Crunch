@@ -53,19 +53,19 @@ public class CharTree<T> {
 	 * @param index
 	 * @return
 	 */
-	public T getFrom(String str, int index) {
+	public Pair<T, Integer> getFrom(String str, int index) {
 		Node node = root;
 		T val = null;
 		for (int i = index; i < str.length(); i++) {
 			node = node.getNode(str.charAt(i));
 			if (node == null) {
-				return val;
+				return new Pair<>(val, i - index);
 			}
 			if (node.getValue() != null) {
 				val = (T) node.getValue();
 			}
 		}
-		return val;
+		return new Pair<>(val, str.length() - index);
 	}
 	
 	private static class Node {

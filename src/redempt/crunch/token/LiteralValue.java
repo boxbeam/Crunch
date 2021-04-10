@@ -1,6 +1,8 @@
-package redempt.crunch;
+package redempt.crunch.token;
 
-class LiteralValue implements Value {
+import redempt.crunch.TokenType;
+
+public class LiteralValue implements Value {
 	
 	private double value;
 	

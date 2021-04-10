@@ -1,6 +1,12 @@
 package redempt.crunch.functional;
 
 import redempt.crunch.CharTree;
+import redempt.crunch.token.Constant;
+import redempt.crunch.token.Operator;
+import redempt.crunch.token.Token;
+import redempt.crunch.Variable;
+
+import java.util.Locale;
 
 /**
  * Represents an environment containing functions that can be called in expressions
@@ -8,13 +14,22 @@ import redempt.crunch.CharTree;
  */
 public class EvaluationEnvironment {
 	
-	private CharTree<Function> functions;
+	private CharTree<Token> namedTokens;
 	
 	/**
 	 * Creates a new EvaluationEnvironment
 	 */
 	public EvaluationEnvironment() {
-		functions = new CharTree<>();
+		namedTokens = new CharTree<>();
+		for (Operator op : Operator.values()) {
+			if (op.isInternal()) {
+				continue;
+			}
+			namedTokens.set(op.getSymbol(), op);
+		}
+		for (Constant con : Constant.values()) {
+			namedTokens.set(con.toString().toLowerCase(Locale.ROOT), con);
+		}
 	}
 	
 	/**
@@ -28,7 +43,23 @@ public class EvaluationEnvironment {
 				throw new IllegalArgumentException("Function names must be ASCII only");
 			}
 		}
-		functions.set(function.getName(), function);
+		namedTokens.set(function.getName(), function);
+	}
+	
+	/**
+	 * Adds any number of Functions that can be called from expressions with this environment
+	 * @param functions The functions to add
+	 */
+	public void addFunctions(Function... functions) {
+		for (Function function : functions) {
+			addFunction(function);
+		}
+	}
+	
+	public void setVariableNames(String... names) {
+		for (int i = 0; i < names.length; i++) {
+			namedTokens.set(names[i], new Variable(null, i + 1));
+		}
 	}
 	
 	/**
@@ -41,12 +72,15 @@ public class EvaluationEnvironment {
 		addFunction(new Function(name, argCount, func));
 	}
 	
+	/**
+	 * Removes all functions
+	 */
 	public void clearFunctions() {
-		functions = new CharTree<>();
+		namedTokens = new CharTree<>();
 	}
 	
-	public CharTree<Function> getFunctions() {
-		return functions;
+	public CharTree<Token> getNamedTokens() {
+		return namedTokens;
 	}
 	
 }

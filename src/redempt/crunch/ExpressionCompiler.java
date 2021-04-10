@@ -5,6 +5,11 @@ import redempt.crunch.functional.ArgumentList;
 import redempt.crunch.functional.EvaluationEnvironment;
 import redempt.crunch.functional.Function;
 import redempt.crunch.functional.FunctionCall;
+import redempt.crunch.token.LiteralValue;
+import redempt.crunch.token.Operation;
+import redempt.crunch.token.Operator;
+import redempt.crunch.token.Token;
+import redempt.crunch.token.Value;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -14,21 +19,7 @@ import java.util.TreeSet;
 
 class ExpressionCompiler {
 	
-	private static CharTree<Operator> opMap = new CharTree<>();
-	private static CharTree<Constant> constMap = new CharTree<>();
 	private static final char VAR_CHAR = '$';
-	
-	static {
-		for (Operator operator : Operator.values()) {
-			if (operator.isInternal()) {
-				continue;
-			}
-			opMap.set(operator.getSymbol(), operator);
-		}
-		for (Constant constant : Constant.values()) {
-			constMap.set(constant.toString(), constant);
-		}
-	}
 	
 	static CompiledExpression compile(String expression, EvaluationEnvironment env) {
 		CompiledExpression exp = new CompiledExpression();
@@ -39,8 +30,10 @@ class ExpressionCompiler {
 	}
 	
 	private static Pair<Value, Integer> compileValue(String expression, CompiledExpression exp, EvaluationEnvironment env, int begin, boolean parenthetical) {
+		CharTree<Token> namedTokens = env.getNamedTokens();
 		LinkedList<Token> tokens = new LinkedList<>();
-		boolean op = opMap.containsFirstChar(expression.charAt(begin));
+		Pair<Token, Integer> firstOp = namedTokens.getFrom(expression, begin);
+		boolean op = firstOp.getFirst() != null && firstOp.getFirst().getType() == TokenType.OPERATOR;
 		boolean closed = false;
 		int tokenStart = begin;
 		char[] chars = expression.toCharArray();
@@ -75,24 +68,25 @@ class ExpressionCompiler {
 					closed = true;
 					break loop;
 			}
-			Operator operator = opMap.getFrom(expression, i);
-			if (operator != null) {
-				if (!op) {
-					tokens.add(compileToken(expression.substring(tokenStart, i), exp));
-				} else if (operator == Operator.SUBTRACT) {
-					operator = Operator.NEGATE;
+			Pair<Token, Integer> namedToken = namedTokens.getFrom(expression, i);
+			if (namedToken.getFirst() != null) {
+				Token token = namedToken.getFirst();
+				if (token.getType() == TokenType.VARIABLE) {
+					Variable var = ((Variable) token).getClone();
+					var.expression = exp;
+					token = var;
 				}
-				op = true;
-				tokens.add(operator);
-				i += operator.getSymbol().length() - 1;
+				if (!op && tokenStart != i) {
+					tokens.add(compileToken(expression.substring(tokenStart, i), exp));
+				}
+				if (token == Operator.SUBTRACT && (tokens.size() == 0 || !(tokens.get(tokens.size() - 1) instanceof Value))) {
+					token = Operator.NEGATE;
+				}
+				op = token.getType() == TokenType.OPERATOR;
+				i += namedToken.getSecond() - 1;
 				tokenStart = i + 1;
+				tokens.add(token);
 				continue;
-			}
-			Function func = env.getFunctions().getFrom(expression, i);
-			if (func != null) {
-				tokens.add(func);
-				i += func.getName().length() - 1;
-				tokenStart = i + 1;
 			}
 			op = false;
 		}
@@ -233,8 +227,7 @@ class ExpressionCompiler {
 		if (str.charAt(0) == VAR_CHAR) {
 			return new Variable(exp, Integer.parseInt(str.substring(1)) - 1);
 		}
-		Constant constant = constMap.getFrom(str, 0);
-		return constant != null && constant.toString().equals(str) ? constant : new LiteralValue(Double.parseDouble(str));
+		return new LiteralValue(Double.parseDouble(str));
 	}
 	
 }

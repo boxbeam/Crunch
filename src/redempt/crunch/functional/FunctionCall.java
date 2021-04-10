@@ -1,7 +1,7 @@
 package redempt.crunch.functional;
 
 import redempt.crunch.TokenType;
-import redempt.crunch.Value;
+import redempt.crunch.token.Value;
 
 /**
  * Represents a lazy function call with other lazy values as function arguments

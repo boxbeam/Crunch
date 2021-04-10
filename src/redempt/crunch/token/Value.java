@@ -1,4 +1,4 @@
-package redempt.crunch;
+package redempt.crunch.token;
 
 /**
  * Represents a lazy value which can be evaluated

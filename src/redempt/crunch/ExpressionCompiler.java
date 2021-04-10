@@ -227,7 +227,41 @@ class ExpressionCompiler {
 		if (str.charAt(0) == VAR_CHAR) {
 			return new Variable(exp, Integer.parseInt(str.substring(1)) - 1);
 		}
-		return new LiteralValue(Double.parseDouble(str));
+		return new LiteralValue(parseDouble(str));
+	}
+	
+	private static double parseDouble(String input) {
+		int i = 0;
+		boolean negative = false;
+		if (input.charAt(0) == '-') {
+			negative = true;
+			i++;
+		}
+		double output = 0;
+		double after = 0;
+		int decimal = -1;
+		for (; i < input.length(); i++) {
+			char c = input.charAt(i);
+			if (c == '.') {
+				if (decimal != -1) {
+					throw new NumberFormatException("Second period in double");
+				}
+				decimal = i;
+				continue;
+			}
+			if (c > '9' || c < '0') {
+				throw new NumberFormatException("Non-numeric character");
+			}
+			if (decimal != -1) {
+				after *= 10;
+				after += c - '0';
+			} else {
+				output *= 10;
+				output += c - '0';
+			}
+		}
+		after /= Math.pow(10, input.length() - decimal - 1);
+		return negative ? -output - after: output + after;
 	}
 	
 }

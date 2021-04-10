@@ -50,7 +50,7 @@ exp.evaluate(); //This will return 2
 
 You can use all the basic operations you're familiar with. If you want to see a list of all supported operations, check the [Operator](https://github.com/Redempt/Crunch/blob/master/src/redempt/crunch/Operator.java) enum, or the Operations section below.
 
-Variables can also be used with Crunch. They must be numbered, starting with 1. This is part of what makes Crunch so performant. If you need named variables, use a string replace before compiling the expression. When calling `evaluate` on a CompiledExpression with variables, you must pass them in order of index.
+Variables can also be used with Crunch. They must be numbered, starting with 1, and preceded by a `$`. This is part of what makes Crunch so performant. If you need named variables, however, you can specify names for them with an `EvaluationEnvironment`. When calling `evaluate` on a CompiledExpression with variables, you must pass them in order of index.
 
 ```java
 CompiledExpression exp = Crunch.compileExpression("$1 / $2");
@@ -68,6 +68,17 @@ env.addFunction("mult", 2, (d) -> d[0] * d[1]);
 CompiledExpression exp = Crunch.compileExpression("mult(2, 3)", env);
 exp.evaluate(); //This will return 6
 ```
+
+With an EvaluationEnvironment, you're also able to specify names for your variables:
+
+```java
+EvaluationEnvironment env = new EvaluationEnvironment();
+env.setVariableNames("x", "y");
+CompiledExpression exp = Crunch.compileExpression("x - y", env);
+exp.evaluate(3, 4); //This will return -1
+```
+
+The values for the variables must be passed in the same order that you passed the variable names in.
 
 In the case that you only need to evaluate an expression once and never again, you can use `Crunch#evaluateExpression`:
 

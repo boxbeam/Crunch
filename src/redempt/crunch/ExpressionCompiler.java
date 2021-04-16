@@ -52,7 +52,7 @@ class ExpressionCompiler {
 						continue;
 					}
 					if (!op && tokenStart != i) {
-						tokens.add(compileToken(expression.substring(tokenStart, i), exp));
+						tokens.add(compileToken(expression, tokenStart, i, exp));
 					}
 					Pair<Value, Integer> inner = compileValue(expression, exp, env, i + 1, true);
 					i += inner.getSecond() + 1;
@@ -77,7 +77,7 @@ class ExpressionCompiler {
 					token = var;
 				}
 				if (!op && tokenStart != i) {
-					tokens.add(compileToken(expression.substring(tokenStart, i), exp));
+					tokens.add(compileToken(expression, tokenStart, i, exp));
 				}
 				if (token == Operator.SUBTRACT && (tokens.size() == 0 || !(tokens.get(tokens.size() - 1) instanceof Value))) {
 					token = Operator.NEGATE;
@@ -94,7 +94,7 @@ class ExpressionCompiler {
 			throw new ExpressionCompilationException("Unbalanced parenthesis");
 		}
 		if (tokenStart < i && i <= expression.length() && !op) {
-			tokens.add(compileToken(expression.substring(tokenStart, i), exp));
+			tokens.add(compileToken(expression, tokenStart, i, exp));
 		}
 		return new Pair<>(reduceTokens(tokens), i - begin);
 	}
@@ -223,34 +223,53 @@ class ExpressionCompiler {
 		iter.set(new Operation(op, (Value) prev, (Value) next));
 	}
 	
-	private static Token compileToken(String str, CompiledExpression exp) {
+	private static Token compileToken(String str, int start, int end, CompiledExpression exp) {
 		if (str.charAt(0) == VAR_CHAR) {
-			return new Variable(exp, Integer.parseInt(str.substring(1)) - 1);
+			return new Variable(exp, parseInt(str, start + 1, end) - 1);
 		}
-		return new LiteralValue(parseDouble(str));
+		return new LiteralValue(parseDouble(str, start, end));
 	}
 	
-	private static double parseDouble(String input) {
-		int i = 0;
+	private static int parseInt(String input, int start, int end) {
+		int i = start;
 		boolean negative = false;
-		if (input.charAt(0) == '-') {
+		if (input.charAt(i) == '-') {
+			negative = true;
+			i++;
+		}
+		int output = 0;
+		for (; i < end; i++) {
+			char c = input.charAt(i);
+			if (c > '9' || c < '0') {
+				throw new NumberFormatException("Non-numeric character in input '" + input + "'");
+			}
+			output *= 10;
+			output += c - '0';
+		}
+		return negative ? -output: output;
+	}
+	
+	private static double parseDouble(String input, int start, int end) {
+		int i = start;
+		boolean negative = false;
+		if (input.charAt(start) == '-') {
 			negative = true;
 			i++;
 		}
 		double output = 0;
 		double after = 0;
 		int decimal = -1;
-		for (; i < input.length(); i++) {
+		for (; i < end; i++) {
 			char c = input.charAt(i);
 			if (c == '.') {
 				if (decimal != -1) {
-					throw new NumberFormatException("Second period in double");
+					throw new NumberFormatException("Second period in double for input '" + input + "'");
 				}
 				decimal = i;
 				continue;
 			}
 			if (c > '9' || c < '0') {
-				throw new NumberFormatException("Non-numeric character");
+				throw new NumberFormatException("Non-numeric character in input '" + input + "'");
 			}
 			if (decimal != -1) {
 				after *= 10;
@@ -260,7 +279,7 @@ class ExpressionCompiler {
 				output += c - '0';
 			}
 		}
-		after /= Math.pow(10, input.length() - decimal - 1);
+		after /= Math.pow(10, end - decimal - 1);
 		return negative ? -output - after: output + after;
 	}
 	

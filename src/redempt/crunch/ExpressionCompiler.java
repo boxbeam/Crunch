@@ -224,7 +224,7 @@ class ExpressionCompiler {
 	}
 	
 	private static Token compileToken(String str, int start, int end, CompiledExpression exp) {
-		if (str.charAt(0) == VAR_CHAR) {
+		if (str.charAt(start) == VAR_CHAR) {
 			return new Variable(exp, parseInt(str, start + 1, end) - 1);
 		}
 		return new LiteralValue(parseDouble(str, start, end));

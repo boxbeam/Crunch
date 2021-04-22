@@ -23,7 +23,6 @@ class ExpressionCompiler {
 	
 	static CompiledExpression compile(String expression, EvaluationEnvironment env) {
 		CompiledExpression exp = new CompiledExpression();
-		expression = expression.replace(" ", "");
 		Value val = compileValue(expression, exp, env, 0, false).getFirst();
 		exp.setValue(val);
 		return exp;
@@ -59,6 +58,14 @@ class ExpressionCompiler {
 					tokens.add(inner.getFirst());
 					tokenStart = i;
 					op = true;
+					continue;
+				case ' ':
+					if (!op && tokenStart != i) {
+						tokens.add(compileToken(expression, tokenStart, i, exp));
+						tokenStart = i + 1;
+					} else {
+						tokenStart++;
+					}
 					continue;
 				case ')':
 				case ',':
@@ -179,6 +186,9 @@ class ExpressionCompiler {
 		Token token = tokens.getFirst();
 		if (!(token instanceof Value)) {
 			throw new ExpressionCompilationException("Token is not a value: " + token.toString());
+		}
+		if (tokens.size() > 1) {
+			throw new ExpressionCompilationException("Adjacent values have no operators between them");
 		}
 		return (Value) tokens.get(0);
 	}

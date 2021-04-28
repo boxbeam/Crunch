@@ -58,7 +58,7 @@ public class EvaluationEnvironment {
 	
 	public void setVariableNames(String... names) {
 		for (int i = 0; i < names.length; i++) {
-			namedTokens.set(names[i], new Variable(null, i + 1));
+			namedTokens.set(names[i], new Variable(null, i));
 		}
 	}
 	

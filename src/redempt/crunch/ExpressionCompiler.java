@@ -22,6 +22,9 @@ class ExpressionCompiler {
 	private static final char VAR_CHAR = '$';
 	
 	static CompiledExpression compile(String expression, EvaluationEnvironment env) {
+		if (expression == null || env == null) {
+			throw new ExpressionCompilationException("Expression and environment may not be null");
+		}
 		CompiledExpression exp = new CompiledExpression();
 		Value val = compileValue(expression, exp, env, 0, false).getFirst();
 		exp.setValue(val);

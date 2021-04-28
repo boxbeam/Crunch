@@ -27,7 +27,7 @@ public enum Operator implements Token {
 	FLOOR("floor", 6, d -> Math.floor(d)),
 	ARC_SINE("asin", 6, d -> Math.asin(d)),
 	ARC_COSINE("acos", 6, d -> Math.acos(d)),
-	ARC_TANGENT("atan", 6, d -> Math.acos(d)),
+	ARC_TANGENT("atan", 6, d -> Math.atan(d)),
 	SINE("sin", 6, d -> Math.sin(d)),
 	COSINE("cos", 6, d -> Math.cos(d)),
 	TANGENT("tan", 6, d -> Math.tan(d)),

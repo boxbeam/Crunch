@@ -48,10 +48,10 @@ public class CharTree<T> {
 	}
 	
 	/**
-	 *
-	 * @param str
-	 * @param index
-	 * @return
+	 * Gets a token forward from the given index in a string
+	 * @param str The string to search in
+	 * @param index The starting index to search from
+	 * @return A pair with the token or null if none was found, and the length parsed
 	 */
 	public Pair<T, Integer> getFrom(String str, int index) {
 		Node node = root;

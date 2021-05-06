@@ -17,9 +17,7 @@ public class CompiledExpression {
 	protected CompiledExpression() {}
 	
 	protected void setVariableValues(double[] values) {
-		if (values.length < variableCount) {
-			throw new ExpressionEvaluationException("Too few variable values - expected " + variableCount + ", got " + values.length);
-		}
+		checkArgCount(values.length);
 		variableValues = values;
 	}
 	
@@ -81,6 +79,42 @@ public class CompiledExpression {
 	 */
 	public double evaluate() {
 		return value.getValue();
+	}
+	
+	/**
+	 * Evaluates this CompiledExpression and returns its value
+	 * @param first The first variable value
+	 * @return The resulting value
+	 */
+	public double evaluate(double first) {
+		checkArgCount(1);
+		if (variableValues == null) {
+			variableValues = new double[1];
+		}
+		variableValues[0] = first;
+		return value.getValue();
+	}
+	
+	/**
+	 * Evaluates this CompiledExpression and returns its value
+	 * @param first The first variable value
+	 * @param second The second variable value
+	 * @return The resulting value
+	 */
+	public double evaluate(double first, double second) {
+		checkArgCount(2);
+		if (variableValues == null) {
+			variableValues = new double[2];
+		}
+		variableValues[0] = first;
+		variableValues[1] = second;
+		return value.getValue();
+	}
+	
+	private void checkArgCount(int args) {
+		if (variableCount > args) {
+			throw new ExpressionEvaluationException("Too few variable values - expected " + variableCount + ", got " + args);
+		}
 	}
 	
 	/**

@@ -7,6 +7,7 @@ import redempt.crunch.token.Token;
 import redempt.crunch.Variable;
 
 import java.util.Locale;
+import java.util.function.ToDoubleFunction;
 
 /**
  * Represents an environment containing functions that can be called in expressions
@@ -68,7 +69,7 @@ public class EvaluationEnvironment {
 	 * @param argCount The argument count for the function
 	 * @param func The lambda to accept the arguments as a double array and return a value
 	 */
-	public void addFunction(String name, int argCount, java.util.function.Function<double[], Double> func) {
+	public void addFunction(String name, int argCount, ToDoubleFunction<double[]> func) {
 		addFunction(new Function(name, argCount, func));
 	}
 	

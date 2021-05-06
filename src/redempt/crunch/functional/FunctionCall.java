@@ -11,10 +11,12 @@ public class FunctionCall implements Value {
 	
 	private Value[] values;
 	private Function function;
+	private double[] numbers;
 	
 	public FunctionCall(Function function, Value[] values) {
 		this.function = function;
 		this.values = values;
+		numbers = new double[function.getArgCount()];
 	}
 	
 	@Override
@@ -24,11 +26,10 @@ public class FunctionCall implements Value {
 	
 	@Override
 	public double getValue() {
-		double[] args = new double[values.length];
 		for (int i = 0; i < values.length; i++) {
-			args[i] = values[i].getValue();
+			numbers[i] = values[i].getValue();
 		}
-		return function.call(args);
+		return function.call(numbers);
 	}
 	
 	@Override

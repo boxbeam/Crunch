@@ -3,6 +3,8 @@ package redempt.crunch.functional;
 import redempt.crunch.token.Token;
 import redempt.crunch.TokenType;
 
+import java.util.function.ToDoubleFunction;
+
 /**
  * Represents a function which can be called in expressions whose environments have it
  * @author Redempt
@@ -11,7 +13,7 @@ public class Function implements Token {
 	
 	private String name;
 	private int argCount;
-	private java.util.function.Function<double[], Double> func;
+	private ToDoubleFunction<double[]> func;
 	
 	/**
 	 * Create a Function
@@ -19,7 +21,7 @@ public class Function implements Token {
 	 * @param argCount The number of arguments this Function will take
 	 * @param func A lambda to take the arguments as a double array and return a value
 	 */
-	public Function(String name, int argCount, java.util.function.Function<double[], Double> func) {
+	public Function(String name, int argCount, ToDoubleFunction<double[]> func) {
 		this.func = func;
 		this.name = name;
 		this.argCount = argCount;
@@ -45,7 +47,7 @@ public class Function implements Token {
 	 * @return The output value
 	 */
 	public double call(double[] values) {
-		return func.apply(values);
+		return func.applyAsDouble(values);
 	}
 	
 	@Override

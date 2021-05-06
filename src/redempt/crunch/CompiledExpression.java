@@ -76,6 +76,14 @@ public class CompiledExpression {
 	}
 	
 	/**
+	 * Evaluates this CompiledExpression and returns its value without modifying variable values
+	 * @return The resulting value
+	 */
+	public double evaluate() {
+		return value.getValue();
+	}
+	
+	/**
 	 * @return A clone of this CompiledExpression
 	 */
 	public CompiledExpression clone() {

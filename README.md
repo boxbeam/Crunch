@@ -173,7 +173,7 @@ Expression: `3*5`
 
 | Crunch | EvalEx |
 |:-------|-------:|
-|36μs   |502μs   |
+|31μs   |502μs   |
 
 Expression: `6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4`
 
@@ -191,7 +191,7 @@ Expression: `6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7
 
 | Crunch | EvalEx |
 |:-------|-------:|
-|1,296μs |24,621μs|
+|504μs   |24,621μs|
 
 Crunch has an unfair advantage in this scenario, though, since it simplifies expressions using only constants where possible. Since this expression is made of only constants, Crunch will reduce it to a single constant value rather than running through all of the values every time. This also helps explain the longer compilation time for the larger expression.
 
@@ -202,8 +202,8 @@ Expression: `3*$1` (for EvalEx, `3*x`)
 
 | Crunch | EvalEx |
 |:-------|-------:|
-|3,678μs |31,654μs|
+|2,124μs |31,654μs|
 
-In both cases, Crunch is about 10-20 times faster for evaluation.
+In both cases, Crunch is about 10-50 times faster for evaluation.
 
 There is another library, [java.math.expression.parser](https://github.com/sbesada/java.math.expression.parser), which also serves a similar purpose, but was not included in this benchmark because rather than compiling and then evaluating expressions, it evaluates them as strings once. This method will obviously be slower than compiling an expression for multiple evaluations, though according to its own benchmarks, this library is still slower to evaluate a long expression a single time than Crunch is to compile and evaluate it.

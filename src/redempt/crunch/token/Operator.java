@@ -1,11 +1,10 @@
 package redempt.crunch.token;
 
-import redempt.crunch.CompiledExpression;
 import redempt.crunch.TokenType;
 
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * Represents an Operator which can be used in mathematical expressions
@@ -17,7 +16,7 @@ public enum Operator implements Token {
 	BOOLEAN_AND("&", 8, (a, b) -> (a == 1 && b == 1) ? 1d : 0d),
 	GREATER_THAN(">", 8, (a, b) -> a > b ? 1d : 0d),
 	LESS_THAN("<", 8, (a, b) -> a < b ? 1d : 0d),
-	EQUAL_TO("=", 0, (a, b) -> a.equals(b) ? 1d : 0d),
+	EQUAL_TO("=", 0, (a, b) -> a == b ? 1d : 0d),
 	GREATER_THAN_OR_EQUAL_TO(">=", 8, (a, b) -> a >= b ? 1d : 0d),
 	LESS_THAN_OR_EQUAL_TO("<=", 8, (a, b) -> a <= b ? 1d : 0d),
 	BOOLEAN_NOT("!", 9, d -> d == 0 ? 1d : 0d),
@@ -44,15 +43,15 @@ public enum Operator implements Token {
 	
 	private String name;
 	private boolean unary;
-	private BiFunction<Double, Double, Double> operate;
+	private DoubleBinaryOperator operate;
 	private int priority;
 	private boolean internal;
 	
-	private Operator(String name, int priority, BiFunction<Double, Double, Double> operate) {
+	private Operator(String name, int priority, DoubleBinaryOperator operate) {
 		this(name, priority, operate, false);
 	}
 	
-	private Operator(String name, int priority, BiFunction<Double, Double, Double> operate, boolean internal) {
+	private Operator(String name, int priority, DoubleBinaryOperator operate, boolean internal) {
 		this.name = name;
 		this.operate = operate;
 		this.unary = false;
@@ -60,13 +59,13 @@ public enum Operator implements Token {
 		this.internal = internal;
 	}
 	
-	private Operator(String name, int priority, Function<Double, Double> operate) {
+	private Operator(String name, int priority, DoubleUnaryOperator operate) {
 		this(name, priority, operate, false);
 	}
 	
-	private Operator(String name, int priority, Function<Double, Double> operate, boolean internal) {
+	private Operator(String name, int priority, DoubleUnaryOperator operate, boolean internal) {
 		this.name = name;
-		this.operate = (a, b) -> operate.apply(a);
+		this.operate = (a, b) -> operate.applyAsDouble(a);
 		this.unary = true;
 		this.priority = priority;
 		this.internal = internal;
@@ -101,7 +100,7 @@ public enum Operator implements Token {
 	 * @return The resulting value
 	 */
 	public double operate(double first, double second) {
-		return operate.apply(first, second);
+		return operate.applyAsDouble(first, second);
 	}
 	
 	/**
@@ -110,7 +109,7 @@ public enum Operator implements Token {
 	 * @return The resulting value
 	 */
 	public double operate(double value) {
-		return operate.apply(value, 0d);
+		return operate.applyAsDouble(value, 0d);
 	}
 	
 	/**

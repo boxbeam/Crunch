@@ -59,6 +59,9 @@ class ExpressionCompiler {
 					if (!op && tokenStart != i) {
 						tokens.add(compileToken(expression, tokenStart, i, exp));
 					}
+					if (tokens.tail() != null && tokens.tail().token instanceof Value) {
+						tokens.add(Operator.MULTIPLY);
+					}
 					Pair<Value, Integer> inner = compileValue(expression, exp, env, i + 1, true);
 					i += inner.getSecond() + 1;
 					tokens.add(inner.getFirst());
@@ -91,6 +94,10 @@ class ExpressionCompiler {
 				}
 				if (!op && tokenStart != i) {
 					tokens.add(compileToken(expression, tokenStart, i, exp));
+				}
+				if (!(token.getType() == TokenType.OPERATOR && !((Operator) token).isUnary())
+						&& tokens.tail() != null && tokens.tail().token instanceof Value) {
+					tokens.add(Operator.MULTIPLY);
 				}
 				if (token == Operator.SUBTRACT && (tokens.size() == 0 || !(tokens.tail().token instanceof Value))) {
 					token = Operator.NEGATE;

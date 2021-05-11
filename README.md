@@ -93,6 +93,8 @@ CompiledExpressions are NOT thread-safe, and may have issues if `evaluate` is ca
 
 # Operations and Syntax
 
+Implicit multiplication - `xy` is identical to `x*y`, `3x` is identical to `3*x`, `3(4)` is identical to `3*(4)`, `3cosx` is identical to `3*cosx`, etc.
+
 `()` - Create a parenthetical expression which will be evaluated first (`3 * (4 + 1)`)
 
 `$` - Denotes a variable (`$1 / 3`)
@@ -138,6 +140,10 @@ CompiledExpressions are NOT thread-safe, and may have issues if `evaluate` is ca
 `acos` - Get the arccosine of a number (`acos0.45`)
 
 `atan` - Get the arctangent of a number (`atan1`)
+
+`sinh` - Get the hyperbolic sine of a number (`sinh(4)`)
+
+`cosh` - Get the hyperbolic cosine of a number (`sinh(4)`)
 
 `true` - Boolean constant representing 1
 

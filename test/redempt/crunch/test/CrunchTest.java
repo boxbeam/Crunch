@@ -88,4 +88,16 @@ public class CrunchTest {
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("mult(1, 2, 3)", env), "Too many arguments");
 	}
 	
+	@Test
+	public void implicitMultiplicationTest() {
+		EvaluationEnvironment env = new EvaluationEnvironment();
+		env.setVariableNames("x", "y");
+		env.addFunction("mult", 2, d -> d[0] * d[1]);
+		assertEquals(12, Crunch.evaluateExpression("3(4)"), "Parenthetical");
+		assertEquals(6, Crunch.evaluateExpression("3abs(-2)"), "Unary operator");
+		assertEquals(9, Crunch.compileExpression("3x", env).evaluate(3), "Single variable");
+		assertEquals(15, Crunch.compileExpression("xy", env).evaluate(5, 3), "Two variables");
+		assertEquals(16, Crunch.compileExpression("x(4)", env).evaluate(4), "Variable outside parenthesis");
+	}
+	
 }

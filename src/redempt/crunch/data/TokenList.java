@@ -1,10 +1,10 @@
-package redempt.crunch;
+package redempt.crunch.data;
 
 import redempt.crunch.token.Token;
 
 import java.util.function.Consumer;
 
-class TokenList {
+public class TokenList {
 	
 	private Node head;
 	private Node tail;

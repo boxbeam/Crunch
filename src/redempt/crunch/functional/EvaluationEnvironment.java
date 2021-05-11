@@ -1,6 +1,6 @@
 package redempt.crunch.functional;
 
-import redempt.crunch.CharTree;
+import redempt.crunch.data.CharTree;
 import redempt.crunch.token.Constant;
 import redempt.crunch.token.Operator;
 import redempt.crunch.token.Token;

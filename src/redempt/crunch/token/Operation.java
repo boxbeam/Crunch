@@ -1,7 +1,5 @@
 package redempt.crunch.token;
 
-import redempt.crunch.TokenType;
-
 public class Operation implements Value {
 	
 	private Operator operator;

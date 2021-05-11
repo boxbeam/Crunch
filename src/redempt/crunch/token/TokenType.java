@@ -1,4 +1,4 @@
-package redempt.crunch;
+package redempt.crunch.token;
 
 /**
  * An enum which represents the various types of Tokens

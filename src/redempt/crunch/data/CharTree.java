@@ -1,4 +1,4 @@
-package redempt.crunch;
+package redempt.crunch.data;
 
 /**
  * A simple implementation of a prefix tree for better parsing

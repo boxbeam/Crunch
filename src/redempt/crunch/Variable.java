@@ -1,5 +1,6 @@
 package redempt.crunch;
 
+import redempt.crunch.token.TokenType;
 import redempt.crunch.token.Value;
 
 public class Variable implements Value {

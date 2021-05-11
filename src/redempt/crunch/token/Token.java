@@ -1,7 +1,5 @@
 package redempt.crunch.token;
 
-import redempt.crunch.TokenType;
-
 /**
  * Represents a parsed token
  * @author Redempt

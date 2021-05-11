@@ -1,4 +1,4 @@
-package redempt.crunch;
+package redempt.crunch.data;
 
 /**
  * Utility class with some methods for parsing base 10 numbers (only ints and doubles for now) that are faster than the standard Java implementation

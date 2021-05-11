@@ -2,6 +2,7 @@ package redempt.crunch;
 
 import redempt.crunch.exceptions.ExpressionEvaluationException;
 import redempt.crunch.token.Operation;
+import redempt.crunch.token.TokenType;
 import redempt.crunch.token.Value;
 
 /**

@@ -1,6 +1,9 @@
 package redempt.crunch;
 
-import redempt.crunch.TokenList.Node;
+import redempt.crunch.data.CharTree;
+import redempt.crunch.data.Pair;
+import redempt.crunch.data.TokenList;
+import redempt.crunch.data.TokenList.Node;
 import redempt.crunch.exceptions.ExpressionCompilationException;
 import redempt.crunch.functional.ArgumentList;
 import redempt.crunch.functional.EvaluationEnvironment;
@@ -10,14 +13,11 @@ import redempt.crunch.token.LiteralValue;
 import redempt.crunch.token.Operation;
 import redempt.crunch.token.Operator;
 import redempt.crunch.token.Token;
+import redempt.crunch.token.TokenType;
 import redempt.crunch.token.Value;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.TreeSet;
 
 class ExpressionCompiler {
 	

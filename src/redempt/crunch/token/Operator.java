@@ -1,7 +1,5 @@
 package redempt.crunch.token;
 
-import redempt.crunch.TokenType;
-
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;

@@ -1,5 +1,6 @@
 package redempt.crunch;
 
+import redempt.crunch.TokenList.Node;
 import redempt.crunch.exceptions.ExpressionCompilationException;
 import redempt.crunch.functional.ArgumentList;
 import redempt.crunch.functional.EvaluationEnvironment;
@@ -12,6 +13,7 @@ import redempt.crunch.token.Token;
 import redempt.crunch.token.Value;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -33,7 +35,7 @@ class ExpressionCompiler {
 	
 	private static Pair<Value, Integer> compileValue(String expression, CompiledExpression exp, EvaluationEnvironment env, int begin, boolean parenthetical) {
 		CharTree<Token> namedTokens = env.getNamedTokens();
-		LinkedList<Token> tokens = new LinkedList<>();
+		TokenList tokens = new TokenList();
 		Pair<Token, Integer> firstOp = namedTokens.getFrom(expression, begin);
 		boolean op = firstOp.getFirst() != null && firstOp.getFirst().getType() == TokenType.OPERATOR;
 		boolean closed = false;
@@ -45,7 +47,7 @@ class ExpressionCompiler {
 			char c = chars[i];
 			switch (c) {
 				case '(':
-					if (tokens.size() > 0 && tokens.getLast().getType() == TokenType.FUNCTION) {
+					if (tokens.size() > 0 && tokens.tail().token.getType() == TokenType.FUNCTION) {
 						Pair<ArgumentList, Integer> args = compileArgumentList(expression, exp, env, i + 1);
 						tokens.add(args.getFirst());
 						i += args.getSecond();
@@ -89,7 +91,7 @@ class ExpressionCompiler {
 				if (!op && tokenStart != i) {
 					tokens.add(compileToken(expression, tokenStart, i, exp));
 				}
-				if (token == Operator.SUBTRACT && (tokens.size() == 0 || !(tokens.get(tokens.size() - 1) instanceof Value))) {
+				if (token == Operator.SUBTRACT && (tokens.size() == 0 || !(tokens.tail().token instanceof Value))) {
 					token = Operator.NEGATE;
 				}
 				op = token.getType() == TokenType.OPERATOR;
@@ -136,19 +138,19 @@ class ExpressionCompiler {
 		return new Pair<>(new ArgumentList(valueArray), i - start);
 	}
 	
-	private static Value reduceTokens(LinkedList<Token> tokens) {
-		TreeSet<Integer> set = new TreeSet<>();
-		int max = -1;
-		ListIterator<Token> iter = tokens.listIterator();
-		while (iter.hasNext()) {
-			Token token = iter.next();
+	private static class OperatorList extends ArrayList<Node> {}
+	
+	private static Value reduceTokens(TokenList tokens) {
+		OperatorList[] priorities = new OperatorList[11];
+//		TreeSet<Integer> set = new TreeSet<>();
+//		int max = -1;
+		for (Node node = tokens.head(); node != null; node = node.next) {
+			Token token = node.token;
 			if (token.getType() == TokenType.FUNCTION) {
-				if (!iter.hasNext()) {
+				if (node.next == null) {
 					throw new ExpressionCompilationException("Function must be followed by argument list");
 				}
-				Token next = iter.next();
-				iter.previous();
-				iter.previous();
+				Token next = node.next.token;
 				if (next.getType() != TokenType.ARGUMENT_LIST) {
 					throw new ExpressionCompilationException("Function must be followed by argument list");
 				}
@@ -157,90 +159,148 @@ class ExpressionCompiler {
 				if (list.getArguments().length != func.getArgCount()) {
 					throw new ExpressionCompilationException("Function '" + func.getName() + "' takes " + func.getArgCount() + " args, but got " + list.getArguments().length);
 				}
-				iter.remove();
-				iter.next();
-				iter.set(new FunctionCall(func, list.getArguments()));
+				node.removeAfter();
+				node.token = new FunctionCall(func, list.getArguments());
 				continue;
 			}
 			if (token.getType() == TokenType.OPERATOR) {
 				Operator op = (Operator) token;
-				set.add(op.getPriority());
-				if (op.getPriority() > max) {
-					max = op.getPriority();
+				OperatorList ops = priorities[op.getPriority()];
+				if (ops == null) {
+					ops = new OperatorList();
+					priorities[op.getPriority()] = ops;
 				}
+				ops.add(node);
 			}
 		}
-		while (set.size() > 0) {
-			int priority = set.floor(max);
-			iter = tokens.listIterator();
-			while (iter.hasNext()) {
-				Token token = iter.next();
-				if (token.getType() != TokenType.OPERATOR) {
-					continue;
-				}
-				Operator op = (Operator) token;
-				if (op.getPriority() != priority) {
-					continue;
-				}
-				createOperation(iter, op);
+		for (int i = priorities.length - 1; i >= 0; i--) {
+			OperatorList list = priorities[i];
+			if (list == null) {
+				continue;
 			}
-			set.remove(priority);
+			list.forEach(ExpressionCompiler::createOperation);
 		}
-		Token token = tokens.getFirst();
+//		while (set.size() > 0) {
+//			int priority = set.pollLast();
+//			iter = tokens.listIterator();
+//			while (iter.hasNext()) {
+//				Token token = iter.next();
+//				if (token.getType() != TokenType.OPERATOR) {
+//					continue;
+//				}
+//				Operator op = (Operator) token;
+//				if (op.getPriority() != priority) {
+//					continue;
+//				}
+//				createOperation(iter, op);
+//			}
+//		}
+		Token token = tokens.head().token;
 		if (!(token instanceof Value)) {
 			throw new ExpressionCompilationException("Token is not a value: " + token.toString());
 		}
 		if (tokens.size() > 1) {
 			throw new ExpressionCompilationException("Adjacent values have no operators between them");
 		}
-		return (Value) tokens.get(0);
+		return (Value) tokens.head().token;
 	}
 	
-	private static void createOperation(ListIterator<Token> iter, Operator op) {
-		if (!iter.hasNext()) {
+	private static void createOperation(Node node) {
+		Operator op = (Operator) node.token;
+		if (node.next == null) {
 			throw new ExpressionCompilationException("Operator " + op + " has no following operand");
 		}
 		if (op.isUnary()) {
-			Token next = iter.next();
-			iter.remove();
-			iter.previous();
+			Token next = node.next.token;
+			node.removeAfter();
 			if (next.getType() == TokenType.OPERATOR) {
 				throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 			}
 			if (next.getType() == TokenType.LITERAL_VALUE) {
 				Value literal = (Value) next;
-				iter.set(new LiteralValue(op.operate(literal.getValue())));
+				node.token = new LiteralValue(op.operate(literal.getValue()));
 				return;
 			}
-			iter.set(new Operation(op, (Value) next));
+			node.token = new Operation(op, (Value) next);
 			return;
 		}
-		if (!iter.hasPrevious()) {
+		if (node.prev == null) {
 			throw new ExpressionCompilationException("Operator " + op + " has no leading operand");
 		}
-		Token next = iter.next();
-		iter.remove();
-		iter.previous();
-		Token prev = iter.previous();
-		iter.remove();
-		iter.next();
+		Token next = node.next.token;
+		node.removeAfter();
+		Token prev = node.prev.token;
+		node.removeBefore();
 		if (prev.getType() == TokenType.OPERATOR || next.getType() == TokenType.OPERATOR) {
 			throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 		}
 		if (prev.getType() == TokenType.LITERAL_VALUE && next.getType() == TokenType.LITERAL_VALUE) {
 			Value lit1 = (Value) prev;
 			Value lit2 = (Value) next;
-			iter.set(new LiteralValue(op.operate(lit1.getValue(), lit2.getValue())));
+			node.token = new LiteralValue(op.operate(lit1.getValue(), lit2.getValue()));
 			return;
 		}
-		iter.set(new Operation(op, (Value) prev, (Value) next));
+		node.token = new Operation(op, (Value) prev, (Value) next);
 	}
 	
 	private static Token compileToken(String str, int start, int end, CompiledExpression exp) {
 		if (str.charAt(start) == VAR_CHAR) {
-			return new Variable(exp, FastNumberParsing.parseInt(str, start + 1, end) - 1);
+			return new Variable(exp, parseInt(str, start + 1, end) - 1);
 		}
-		return new LiteralValue(FastNumberParsing.parseDouble(str, start, end));
+		return new LiteralValue(parseDouble(str, start, end));
+	}
+	
+	private static int parseInt(String input, int start, int end) {
+		int i = start;
+		boolean negative = false;
+		if (input.charAt(i) == '-') {
+			negative = true;
+			i++;
+		}
+		int output = 0;
+		for (; i < end; i++) {
+			char c = input.charAt(i);
+			if (c > '9' || c < '0') {
+				throw new NumberFormatException("Non-numeric character in input '" + input + "'");
+			}
+			output *= 10;
+			output += c - '0';
+		}
+		return negative ? -output: output;
+	}
+	
+	private static double parseDouble(String input, int start, int end) {
+		int i = start;
+		boolean negative = false;
+		if (input.charAt(start) == '-') {
+			negative = true;
+			i++;
+		}
+		double output = 0;
+		double after = 0;
+		int decimal = -1;
+		for (; i < end; i++) {
+			char c = input.charAt(i);
+			if (c == '.') {
+				if (decimal != -1) {
+					throw new NumberFormatException("Second period in double for input '" + input + "'");
+				}
+				decimal = i;
+				continue;
+			}
+			if (c > '9' || c < '0') {
+				throw new NumberFormatException("Non-numeric character in input '" + input + "'");
+			}
+			if (decimal != -1) {
+				after *= 10;
+				after += c - '0';
+			} else {
+				output *= 10;
+				output += c - '0';
+			}
+		}
+		after /= Math.pow(10, end - decimal - 1);
+		return negative ? -output - after: output + after;
 	}
 	
 }

@@ -1,6 +1,7 @@
 package redempt.crunch;
 
 import redempt.crunch.data.CharTree;
+import redempt.crunch.data.FastNumberParsing;
 import redempt.crunch.data.Pair;
 import redempt.crunch.data.TokenList;
 import redempt.crunch.data.TokenList.Node;
@@ -228,62 +229,9 @@ class ExpressionCompiler {
 	
 	private static Token compileToken(String str, int start, int end, CompiledExpression exp) {
 		if (str.charAt(start) == VAR_CHAR) {
-			return new Variable(exp, parseInt(str, start + 1, end) - 1);
+			return new Variable(exp, FastNumberParsing.parseInt(str, start + 1, end) - 1);
 		}
-		return new LiteralValue(parseDouble(str, start, end));
-	}
-	
-	private static int parseInt(String input, int start, int end) {
-		int i = start;
-		boolean negative = false;
-		if (input.charAt(i) == '-') {
-			negative = true;
-			i++;
-		}
-		int output = 0;
-		for (; i < end; i++) {
-			char c = input.charAt(i);
-			if (c > '9' || c < '0') {
-				throw new NumberFormatException("Non-numeric character in input '" + input + "'");
-			}
-			output *= 10;
-			output += c - '0';
-		}
-		return negative ? -output: output;
-	}
-	
-	private static double parseDouble(String input, int start, int end) {
-		int i = start;
-		boolean negative = false;
-		if (input.charAt(start) == '-') {
-			negative = true;
-			i++;
-		}
-		double output = 0;
-		double after = 0;
-		int decimal = -1;
-		for (; i < end; i++) {
-			char c = input.charAt(i);
-			if (c == '.') {
-				if (decimal != -1) {
-					throw new NumberFormatException("Second period in double for input '" + input + "'");
-				}
-				decimal = i;
-				continue;
-			}
-			if (c > '9' || c < '0') {
-				throw new NumberFormatException("Non-numeric character in input '" + input + "'");
-			}
-			if (decimal != -1) {
-				after *= 10;
-				after += c - '0';
-			} else {
-				output *= 10;
-				output += c - '0';
-			}
-		}
-		after /= Math.pow(10, end - decimal - 1);
-		return negative ? -output - after: output + after;
+		return new LiteralValue(FastNumberParsing.parseDouble(str, start, end));
 	}
 	
 }

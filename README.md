@@ -173,15 +173,15 @@ Expression: `3*5`
 
 | Crunch | EvalEx |
 |:-------|-------:|
-|31μs   |502μs   |
+|22μs   |502μs   |
 
 Expression: `6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4`
 
 | Crunch | EvalEx |
 |:-------|-------:|
-|778μs |559μs   |
+|532μs |559μs   |
 
-As you can see, Crunch is much faster at compiling short expressions, and scales well to compiling longer ones as well. EvalEx's time to 'compile' stays roughly the same because it doesn't actually compile the expression in its initializer, and does nothing with the string until evaluate is called.
+As you can see, Crunch is much faster at compiling short expressions, and stacks up pretty evenly with long expressions. EvalEx is actually misleading here, though, as it doesn't compile an expression when its `Expression` class is initialized - it doesn't touch the string at all until evaluate is called. Even so, Crunch can compile this long expression in the time it takes EvalEx to initialize its operators without even touching the string.
 
 ## Evaluation
 
@@ -193,7 +193,7 @@ Expression: `6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7
 |:-------|-------:|
 |504μs   |24,621μs|
 
-Crunch has an unfair advantage in this scenario, though, since it simplifies expressions using only constants where possible. Since this expression is made of only constants, Crunch will reduce it to a single constant value rather than running through all of the values every time. This also helps explain the longer compilation time for the larger expression.
+Crunch has an unfair advantage in this scenario, though, since it simplifies expressions using only constants where possible. Since this expression is made of only constants, Crunch will reduce it to a single constant value rather than running through all of the values every time.
 
 So now for a more realistic test: Expressions using variables.
 

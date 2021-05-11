@@ -146,20 +146,7 @@ class ExpressionCompiler {
 		for (Node node = tokens.head(); node != null; node = node.next) {
 			Token token = node.token;
 			if (token.getType() == TokenType.FUNCTION) {
-				if (node.next == null) {
-					throw new ExpressionCompilationException("Function must be followed by argument list");
-				}
-				Token next = node.next.token;
-				if (next.getType() != TokenType.ARGUMENT_LIST) {
-					throw new ExpressionCompilationException("Function must be followed by argument list");
-				}
-				Function func = (Function) token;
-				ArgumentList list = (ArgumentList) next;
-				if (list.getArguments().length != func.getArgCount()) {
-					throw new ExpressionCompilationException("Function '" + func.getName() + "' takes " + func.getArgCount() + " args, but got " + list.getArguments().length);
-				}
-				node.removeAfter();
-				node.token = new FunctionCall(func, list.getArguments());
+				createFunctionCall(node);
 				continue;
 			}
 			if (token.getType() == TokenType.OPERATOR) {
@@ -187,6 +174,23 @@ class ExpressionCompiler {
 			throw new ExpressionCompilationException("Adjacent values have no operators between them");
 		}
 		return (Value) tokens.head().token;
+	}
+	
+	private static void createFunctionCall(Node node) {
+		if (node.next == null) {
+			throw new ExpressionCompilationException("Function must be followed by argument list");
+		}
+		Token next = node.next.token;
+		if (next.getType() != TokenType.ARGUMENT_LIST) {
+			throw new ExpressionCompilationException("Function must be followed by argument list");
+		}
+		Function func = (Function) node.token;
+		ArgumentList list = (ArgumentList) next;
+		if (list.getArguments().length != func.getArgCount()) {
+			throw new ExpressionCompilationException("Function '" + func.getName() + "' takes " + func.getArgCount() + " args, but got " + list.getArguments().length);
+		}
+		node.removeAfter();
+		node.token = new FunctionCall(func, list.getArguments());
 	}
 	
 	private static void createOperation(Node node) {

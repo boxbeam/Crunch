@@ -83,6 +83,9 @@ public class CrunchTest {
 		assertEquals(45, Crunch.compileExpression("mult(15, 3)", env).evaluate(), "Basic function");
 		assertEquals(96, Crunch.compileExpression("mult(2, mult(4, mult(3, 4)))", env).evaluate(), "Nested functions");
 		assertEquals(4, Crunch.compileExpression("four()", env).evaluate(), "No-argument function");
+		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("mult", env), "No argument list");
+		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("mult(1)", env), "Not enough arguments");
+		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("mult(1, 2, 3)", env), "Too many arguments");
 	}
 	
 }

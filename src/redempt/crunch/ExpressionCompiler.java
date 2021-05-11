@@ -142,8 +142,6 @@ class ExpressionCompiler {
 	
 	private static Value reduceTokens(TokenList tokens) {
 		OperatorList[] priorities = new OperatorList[11];
-//		TreeSet<Integer> set = new TreeSet<>();
-//		int max = -1;
 		for (Node node = tokens.head(); node != null; node = node.next) {
 			Token token = node.token;
 			if (token.getType() == TokenType.FUNCTION) {
@@ -180,21 +178,6 @@ class ExpressionCompiler {
 			}
 			list.forEach(ExpressionCompiler::createOperation);
 		}
-//		while (set.size() > 0) {
-//			int priority = set.pollLast();
-//			iter = tokens.listIterator();
-//			while (iter.hasNext()) {
-//				Token token = iter.next();
-//				if (token.getType() != TokenType.OPERATOR) {
-//					continue;
-//				}
-//				Operator op = (Operator) token;
-//				if (op.getPriority() != priority) {
-//					continue;
-//				}
-//				createOperation(iter, op);
-//			}
-//		}
 		Token token = tokens.head().token;
 		if (!(token instanceof Value)) {
 			throw new ExpressionCompilationException("Token is not a value: " + token.toString());

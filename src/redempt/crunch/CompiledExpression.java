@@ -79,6 +79,7 @@ public class CompiledExpression {
 	 * @return The resulting value
 	 */
 	public double evaluate() {
+		checkArgCount(0);
 		return value.getValue();
 	}
 	

@@ -73,6 +73,7 @@ public class CrunchTest {
 		env.setVariableNames("x", "y");
 		assertEquals(33, Crunch.compileExpression("x * y", env).evaluate(11, 3), "Multiplying named variables");
 		assertThrows(ExpressionEvaluationException.class, () -> Crunch.compileExpression("x * y", env).evaluate(1), "Too few values");
+		assertThrows(ExpressionEvaluationException.class, () -> Crunch.compileExpression("x", env).evaluate());
 	}
 	
 	@Test

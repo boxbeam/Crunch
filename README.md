@@ -1,6 +1,8 @@
 # Crunch
 The fastest Java library for compiling and evaluating mathematical expressions with variables
 
+Support Discord: https://discord.gg/agu5xGy2YZ
+
 # Installation for Development
 
 Crunch can be accessed via JitPack using Gradle or Maven. Read the section for whichever you use below.

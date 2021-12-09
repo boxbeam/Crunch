@@ -178,6 +178,8 @@ Implicit multiplication - `xy` is identical to `x*y`, `3x` is identical to `3*x`
 
 `sqrt` - Get the square root of a number (`sqrt4`)
 
+`cbrt` - Get the cube root of a number (`cbrt(8)`)
+
 `sin` - Get the sine of a number (`sin$2`)
 
 `cos` - Get the cosine of a number (`cos(2*pi)`)

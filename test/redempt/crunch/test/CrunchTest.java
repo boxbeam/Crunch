@@ -100,5 +100,11 @@ public class CrunchTest {
 		assertEquals(15, Crunch.compileExpression("xy", env).evaluate(5, 3), "Two variables");
 		assertEquals(16, Crunch.compileExpression("x(4)", env).evaluate(4), "Variable outside parenthesis");
 	}
+
+	@Test
+	public void rootingTest(){
+		assertEquals(2, Crunch.evaluateExpression("sqrt(4)"), "Square Rooting");
+		assertEquals(2, Crunch.evaluateExpression("cbrt(8)"), "Cube Rooting");
+	}
 	
 }

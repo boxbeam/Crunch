@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+	id 'maven-publish'
 }
 
 sourceSets {
@@ -31,3 +32,24 @@ test {
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+task javadocJar(type: Jar) {
+	from javadoc
+	archiveClassifier.set('javadoc')
+}
+
+task sourcesJar(type: Jar) {
+	from sourceSets.main.allJava
+	archiveClassifier.set('sources')
+}
+publishing {
+	publications {
+		maven(MavenPublication) {
+			groupId = 'com.github.Redempt'
+			artifactId = rootProject.name
+			version = System.env.BUILD_VERSION ?: "1.0"
+			artifact jar
+			artifact javadocJar
+			artifact sourcesJar
+		}
+	}
+}

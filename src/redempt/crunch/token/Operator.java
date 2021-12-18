@@ -81,8 +81,7 @@ public enum Operator implements Token {
 	}
 
 	/**
-	 * The symbol to represent this Operator in expressions
-	 * @return
+	 * @return The symbol to represent this Operator in expressions
 	 */
 	public String getSymbol() {
 		return name;

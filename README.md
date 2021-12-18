@@ -11,23 +11,25 @@ Crunch can be accessed via JitPack using Gradle or Maven. Read the section for w
 
 ```		
 repositories {
-	maven { url 'https://jitpack.io' }
+	maven { url 'https://redempt.dev' }
 }
 
 ```
 
 ```
 dependencies {
-	implementation 'com.github.Redempt:Crunch:master'
+	implementation 'com.github.Redempt:Crunch:Tag'
 }
 ```
+
+Replace `Tag` with a version, like `1.0`.
 
 ## Maven:
 
 ```
 <repository>
-	<id>jitpack.io</id>
-	<url>https://jitpack.io</url>
+	<id>redempt.dev</id>
+	<url>https://redempt.dev</url>
 </repository>
 ```
 
@@ -35,9 +37,11 @@ dependencies {
 <dependency>
 	<groupId>com.github.Redempt</groupId>
 	<artifactId>Crunch</artifactId>
-	<version>master</version>
+	<version>Tag</version>
 </dependency>
 ```
+
+Replace `Tag` with a version, like `1.0`.
 
 # Usage
 

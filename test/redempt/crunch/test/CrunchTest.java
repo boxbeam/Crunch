@@ -102,9 +102,17 @@ public class CrunchTest {
 	}
 
 	@Test
-	public void rootingTest(){
+	public void rootingTest() {
 		assertEquals(2, Crunch.evaluateExpression("sqrt(4)"), "Square Rooting");
 		assertEquals(2, Crunch.evaluateExpression("cbrt(8)"), "Cube Rooting");
+	}
+	
+	@Test
+	public void lazyVariableTest() {
+		EvaluationEnvironment env = new EvaluationEnvironment();
+		env.addLazyVariable("x", () -> 2);
+		env.addLazyVariable("y", () -> 7);
+		assertEquals(14, Crunch.compileExpression("xy", env).evaluate());
 	}
 	
 }

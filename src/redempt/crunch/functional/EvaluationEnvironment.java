@@ -2,11 +2,13 @@ package redempt.crunch.functional;
 
 import redempt.crunch.data.CharTree;
 import redempt.crunch.token.Constant;
+import redempt.crunch.token.LazyVariable;
 import redempt.crunch.token.Operator;
 import redempt.crunch.token.Token;
 import redempt.crunch.Variable;
 
 import java.util.Locale;
+import java.util.function.DoubleSupplier;
 import java.util.function.ToDoubleFunction;
 
 /**
@@ -55,6 +57,15 @@ public class EvaluationEnvironment {
 		for (Function function : functions) {
 			addFunction(function);
 		}
+	}
+	
+	/**
+	 * Adds a lazily-evaluated variable that will not need to be passed with the variable values
+	 * @param name The name of the lazy variable
+	 * @param supply A function to supply the value of the variable when needed
+	 */
+	public void addLazyVariable(String name, DoubleSupplier supply) {
+		namedTokens.set(name, new LazyVariable(name, supply));
 	}
 	
 	public void setVariableNames(String... names) {

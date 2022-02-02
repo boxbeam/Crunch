@@ -86,6 +86,15 @@ exp.evaluate(3, 4); //This will return -1
 
 The values for the variables must be passed in the same order that you passed the variable names in.
 
+You're also able to define lazy variables, which don't need to be passed as arguments to `evaluate`:
+
+```java
+EvaluationEnvironment env = new EvaluationEnvironment();
+env.addLazyVariable("x", () -> 4);
+CompiledExpression exp = Crunch.compileExpression("x + 1");
+exp.evaluate(); //This will return 5
+```
+
 In the case that you only need to evaluate an expression once and never again, you can use `Crunch#evaluateExpression`:
 
 ```java

@@ -14,7 +14,7 @@ public class LazyVariable implements Value {
 	
 	@Override
 	public TokenType getType() {
-		return TokenType.LITERAL_VALUE;
+		return TokenType.LAZY_VARIABLE;
 	}
 	
 	@Override

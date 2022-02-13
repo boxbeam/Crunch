@@ -53,6 +53,7 @@ public class CrunchTest {
 		assertEquals(1, Crunch.evaluateExpression("true | false"), "Boolean or");
 		assertEquals(0, Crunch.evaluateExpression("true & (true & false | false)"), "More complex boolean expression");
 		assertEquals(1, Crunch.evaluateExpression("1 = 1 & 3 = 3"), "Arithmetic comparisons");
+		assertEquals(1, Crunch.evaluateExpression("1 != 2 & 3 != 4"), "Using !=");
 	}
 	
 	@Test

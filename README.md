@@ -213,7 +213,9 @@ Implicit multiplication - `xy` is identical to `x*y`, `3x` is identical to `3*x`
 
 `false` - Boolean constant representing 0
 
-`=` - Compare if two numbers are equal (`1 = 1` will be `1`, `1 = 3` will be 0)
+`=` - Compare if two numbers are equal (`1 = 1` will be `1`, `1 = 3` will be `0`)
+
+`!=` - Compare if two numbers are not equal (`1 != 2` will be `1`, `1 != 1` will be `0`)
 
 `>` - Compare if one number is greater than another (`1 > 0`)
 

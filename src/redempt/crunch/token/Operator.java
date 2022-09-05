@@ -15,6 +15,7 @@ public enum Operator implements Token {
 	GREATER_THAN(">", 1, (a, b) -> a > b ? 1d : 0d),
 	LESS_THAN("<", 1, (a, b) -> a < b ? 1d : 0d),
 	EQUAL_TO("=", 1, (a, b) -> a == b ? 1d : 0d),
+	EQUAL_TO_ALT("==", 1, (a, b) -> a == b ? 1d : 0d),
 	NOT_EQUAL_TO("!=", 1, (a, b) -> a != b ? 1d : 0d),
 	GREATER_THAN_OR_EQUAL_TO(">=", 1, (a, b) -> a >= b ? 1d : 0d),
 	LESS_THAN_OR_EQUAL_TO("<=", 1, (a, b) -> a <= b ? 1d : 0d),

@@ -17,6 +17,10 @@ public class Operation implements Value {
 		this.second = second;
 	}
 	
+    public Operator getOperator() {
+        return operator;
+    }
+
 	public Value[] getValues() {
 		return operator.isUnary() ?
 				new Value[] {first} :

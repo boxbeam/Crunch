@@ -8,3 +8,5 @@
  */
 
 rootProject.name = 'Crunch'
+include 'solve'
+project(':solve').setProjectDir(new File('solve'))

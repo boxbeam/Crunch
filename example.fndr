@@ -1,0 +1,4 @@
+# Example: Return the sum of a string
+# of space-separated integers
+$strsum = {$.split(" ").map(int).sum()}
+

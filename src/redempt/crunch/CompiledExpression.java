@@ -15,18 +15,22 @@ public class CompiledExpression {
 	private int variableCount;
 	private Value value;
 	
-	protected CompiledExpression() {}
+    protected CompiledExpression() {}
+
+	public CompiledExpression(Value value) {
+        setValue(value);
+    }
+
+    protected void setValue(Value value) {
+        this.value = value;
+        variableCount = recursiveVariableMaxIndex(value) + 1;
+    }
 	
 	protected void setVariableValues(double[] values) {
 		checkArgCount(values.length);
 		variableValues = values;
 	}
-	
-	protected void setValue(Value value) {
-		this.value = value;
-		variableCount = recursiveVariableMaxIndex(value) + 1;
-	}
-	
+
 	private int recursiveVariableMaxIndex(Value value) {
 		if (value.getType() == TokenType.VARIABLE) {
 			Variable var = (Variable) value;
@@ -51,7 +55,11 @@ public class CompiledExpression {
 		return count;
 	}
 	
-	protected Value getValue() {
+    /**
+     * Gets the internal Value representation of the expression. This is essentially reflection into the expression. Proceed at your own risk.
+     * @return The Value this CompiledExpression wraps
+     */
+	public Value getValue() {
 		return value;
 	}
 	
@@ -123,10 +131,7 @@ public class CompiledExpression {
 	 * @return A clone of this CompiledExpression
 	 */
 	public CompiledExpression clone() {
-		CompiledExpression clone = new CompiledExpression();
-		Value cloned = value.getClone();
-		clone.setValue(cloned);
-		return clone;
+		return new CompiledExpression(value.getClone());
 	}
 	
 	/**

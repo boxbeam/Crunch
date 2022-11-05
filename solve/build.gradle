@@ -1,0 +1,31 @@
+plugins {
+    id 'java-library'
+}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+sourceSets {
+    main {
+        java {
+            srcDir "src"
+        }
+    }
+    test {
+        java {
+            srcDir "test"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    implementation project(':')
+}
+test {
+    useJUnitPlatform()
+    workingDir = "test"
+}

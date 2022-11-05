@@ -1,10 +1,10 @@
 package redempt.crunch.solve;
 
 import org.junit.jupiter.api.Test;
-import redempt.crunch.CompiledExpression;
 import redempt.crunch.Crunch;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CrunchSolveTest {
 

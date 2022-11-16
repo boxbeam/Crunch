@@ -12,9 +12,9 @@ public enum Operator implements Token {
 
 	BOOLEAN_OR("|", 0, (a, b) -> (a == 1 || b == 1) ? 1d : 0d),
 	BOOLEAN_OR_ALT("||", 0, (a, b) -> (a == 1 || b == 1) ? 1d : 0d),
-  BOOLEAN_AND("&", 0, (a, b) -> (a == 1 && b == 1) ? 1d : 0d),
-  BOOLEAN_AND_ALT("&&", 0, (a, b) -> (a == 1 && b == 1) ? 1d : 0d),
-  GREATER_THAN(">", 1, (a, b) -> a > b ? 1d : 0d),
+        BOOLEAN_AND("&", 0, (a, b) -> (a == 1 && b == 1) ? 1d : 0d),
+        BOOLEAN_AND_ALT("&&", 0, (a, b) -> (a == 1 && b == 1) ? 1d : 0d),
+        GREATER_THAN(">", 1, (a, b) -> a > b ? 1d : 0d),
 	LESS_THAN("<", 1, (a, b) -> a < b ? 1d : 0d),
 	EQUAL_TO("=", 1, (a, b) -> a == b ? 1d : 0d),
 	EQUAL_TO_ALT("==", 1, (a, b) -> a == b ? 1d : 0d),

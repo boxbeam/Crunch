@@ -91,7 +91,7 @@ You're also able to define lazy variables, which don't need to be passed as argu
 ```java
 EvaluationEnvironment env = new EvaluationEnvironment();
 env.addLazyVariable("x", () -> 4);
-CompiledExpression exp = Crunch.compileExpression("x + 1");
+CompiledExpression exp = Crunch.compileExpression("x + 1", env);
 exp.evaluate(); //This will return 5
 ```
 

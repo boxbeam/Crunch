@@ -1,2 +1,7 @@
 *.log
-
+.idea/
+.gradle/
+*.iml
+build/
+out/
+solve/

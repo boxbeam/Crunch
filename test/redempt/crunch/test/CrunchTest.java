@@ -115,6 +115,12 @@ public class CrunchTest {
 		env.addLazyVariable("x", () -> 2);
 		env.addLazyVariable("y", () -> 7);
 		assertEquals(14, Crunch.compileExpression("xy", env).evaluate());
+        assertEquals(3, Crunch.compileExpression("x + 1", env).evaluate());
 	}
 	
+    @Test
+    public void scientificNotationTest() {
+        assertEquals(2E7, Crunch.evaluateExpression("2E7"), DELTA);
+    }
+
 }

@@ -211,7 +211,7 @@ class ExpressionCompiler {
 			if (next.getType() == TokenType.OPERATOR) {
 				throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 			}
-			if (next.getType() == TokenType.LITERAL_VALUE) {
+			if (next.getType() == TokenType.LITERAL_VALUE && op.canInline()) {
 				Value literal = (Value) next;
 				node.token = new LiteralValue(op.operate(literal.getValue()));
 				return;
@@ -229,7 +229,7 @@ class ExpressionCompiler {
 		if (prev.getType() == TokenType.OPERATOR || next.getType() == TokenType.OPERATOR) {
 			throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 		}
-		if (prev.getType() == TokenType.LITERAL_VALUE && next.getType() == TokenType.LITERAL_VALUE) {
+		if (prev.getType() == TokenType.LITERAL_VALUE && next.getType() == TokenType.LITERAL_VALUE && op.canInline()) {
 			Value lit1 = (Value) prev;
 			Value lit2 = (Value) next;
 			node.token = new LiteralValue(op.operate(lit1.getValue(), lit2.getValue()));

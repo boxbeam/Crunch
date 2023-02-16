@@ -1,13 +1,13 @@
 package redempt.crunch.test;
 
 import org.junit.jupiter.api.Test;
+import redempt.crunch.CompiledExpression;
 import redempt.crunch.Crunch;
 import redempt.crunch.exceptions.ExpressionCompilationException;
 import redempt.crunch.exceptions.ExpressionEvaluationException;
 import redempt.crunch.functional.EvaluationEnvironment;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CrunchTest {
 
@@ -121,6 +121,12 @@ public class CrunchTest {
     @Test
     public void scientificNotationTest() {
         assertEquals(2E7, Crunch.evaluateExpression("2E7"), DELTA);
+    }
+
+    @Test
+    public void noInlineRandomTest() {
+        CompiledExpression expr = Crunch.compileExpression("rand1000000");
+        assertNotEquals(expr.evaluate(), expr.evaluate());
     }
 
 }

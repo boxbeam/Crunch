@@ -23,7 +23,7 @@ public enum Operator implements Token {
     GREATER_THAN_OR_EQUAL_TO(">=", 1, (a, b) -> a >= b ? 1d : 0d),
     LESS_THAN_OR_EQUAL_TO("<=", 1, (a, b) -> a <= b ? 1d : 0d),
     BOOLEAN_NOT("!", 9, d -> d == 0 ? 1d : 0d),
-    RANDOM_DOUBLE("rand", 6, d -> ThreadLocalRandom.current().nextDouble() * d),
+    RANDOM_DOUBLE("rand", 6, d -> ThreadLocalRandom.current().nextDouble() * d, false, false),
     ROUND("round", 6, d -> Double.valueOf(Math.round(d))),
     CEILING("ceil", 6, d -> Math.ceil(d)),
     FLOOR("floor", 6, d -> Math.floor(d)),
@@ -54,6 +54,7 @@ public enum Operator implements Token {
     private DoubleBinaryOperator operate;
     private int priority;
     private boolean internal;
+    private boolean canInline = true;
 
     private Operator(String name, int priority, DoubleBinaryOperator operate) {
         this(name, priority, operate, false);
@@ -77,6 +78,15 @@ public enum Operator implements Token {
         this.unary = true;
         this.priority = priority;
         this.internal = internal;
+    }
+
+    private Operator(String name, int priority, DoubleUnaryOperator operate, boolean internal, boolean canInline) {
+        this.name = name;
+        this.operate = (a, b) -> operate.applyAsDouble(a);
+        this.unary = true;
+        this.priority = priority;
+        this.internal = internal;
+        this.canInline = canInline;
     }
 
     /**
@@ -137,6 +147,10 @@ public enum Operator implements Token {
 
     public String toString() {
         return getSymbol();
+    }
+
+    public boolean canInline() {
+        return canInline;
     }
 
 }

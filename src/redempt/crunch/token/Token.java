@@ -4,7 +4,7 @@ package redempt.crunch.token;
  * Represents a parsed token
  * @author Redempt
  */
-public interface Token {
+public interface Token {Token
 	
 	/**
 	 * @return The type of this Token

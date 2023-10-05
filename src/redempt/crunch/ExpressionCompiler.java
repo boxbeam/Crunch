@@ -7,26 +7,22 @@ import redempt.crunch.data.TokenList;
 import redempt.crunch.data.TokenList.Node;
 import redempt.crunch.exceptions.ExpressionCompilationException;
 import redempt.crunch.functional.ArgumentList;
-import redempt.crunch.functional.EvaluationEnvironment;
+import redempt.crunch.functional.ExpressionEnv;
 import redempt.crunch.functional.Function;
 import redempt.crunch.functional.FunctionCall;
-import redempt.crunch.token.LiteralValue;
-import redempt.crunch.token.Operation;
-import redempt.crunch.token.Operator;
-import redempt.crunch.token.Token;
-import redempt.crunch.token.TokenType;
-import redempt.crunch.token.Value;
+import redempt.crunch.token.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 class ExpressionCompiler {
 	
 	private static final char VAR_CHAR = '$';
 	
-	static CompiledExpression compile(String expression, EvaluationEnvironment env) {
+	static CompiledExpression compile(String expression, ExpressionEnv env) {
 		if (expression == null || env == null) {
-			throw new ExpressionCompilationException("Expression and environment may not be null");
+			throw new ExpressionCompilationException(null, "Expression and environment may not be null");
 		}
 		CompiledExpression exp = new CompiledExpression();
 		Value val = compileValue(expression, exp, env, 0, false).getFirst();
@@ -34,11 +30,71 @@ class ExpressionCompiler {
 		return exp;
 	}
 	
-	private static Pair<Value, Integer> compileValue(String expression, CompiledExpression exp, EvaluationEnvironment env, int begin, boolean parenthetical) {
+	private static Value parseExpression(Parser parser, ExpressionEnv env) {
+		List<Token> tokens = new ArrayList<>();
+		
+		return null;
+	}
+
+	private static Value parseOptionalNestedExpression(Parser parser, ExpressionEnv env) {
+		if (parser.peek() != '(') {
+			return null;
+		}
+		parser.advanceCursor();
+		Value expression = parseExpression(parser, env);
+		parser.expectChar(')');
+		return expression;
+	}
+
+	private static Value parseTerm(Parser parser, ExpressionEnv env) {
+		Value nested = parseOptionalNestedExpression(parser, env);
+		if (nested != null) {
+			return nested;
+		}
+		Token token = env.getNamedTokens().getWith(parser);
+		if (token instanceof Value) {
+			return (Value) token;
+		}
+		return parseLeadingOperation(parser, env, token);
+	}
+
+	private static Value parseLeadingOperation(Parser parser, ExpressionEnv env, Token operation) {
+		switch (operation.getType()) {
+			case UNARY_OPERATOR:
+				return new UnaryOperation((UnaryOperator) operation, parseTerm(parser, env));
+			case FUNCTION:
+				Function function = (Function) operation;
+				ArgumentList args = parseArgumentList(parser, env, function.getArgCount());
+				return new FunctionCall(function, args.getArguments());
+		}
+		throw new ExpressionCompilationException(parser, "Expected leading operation");
+	}
+
+	private static ArgumentList parseArgumentList(Parser parser, ExpressionEnv env, int args) {
+        parser.expectChar('(');
+        parser.whitespace();
+        Value[] values = new Value[args];
+        if (args == 0) {
+            parser.expectChar(')');
+            return new ArgumentList(new Value[0]);
+        }
+        values[0] = parseExpression(parser, env);
+        parser.whitespace();
+        for (int i = 1; i < args; i++) {
+			parser.expectChar(',');
+			values[i] = parseExpression(parser, env);
+			parser.whitespace();
+		}
+
+        parser.expectChar(')');
+        return new ArgumentList(values);
+    }
+
+	private static Pair<Value, Integer> compileValue(String expression, CompiledExpression exp, ExpressionEnv env, int begin, boolean parenthetical) {
 		CharTree<Token> namedTokens = env.getNamedTokens();
 		TokenList tokens = new TokenList();
 		Pair<Token, Integer> firstOp = namedTokens.getFrom(expression, begin);
-		boolean op = firstOp.getFirst() != null && firstOp.getFirst().getType() == TokenType.OPERATOR;
+		boolean op = firstOp.getFirst() != null && firstOp.getFirst().getType() == TokenType.BINARY_OPERATOR;
 		boolean closed = false;
 		int tokenStart = begin;
 		char[] chars = expression.toCharArray();
@@ -60,7 +116,7 @@ class ExpressionCompiler {
 						tokens.add(compileToken(expression, tokenStart, i, exp));
 					}
 					if (tokens.tail() != null && tokens.tail().token instanceof Value) {
-						tokens.add(Operator.MULTIPLY);
+						tokens.add(BinaryOperator.MULTIPLY);
 					}
 					Pair<Value, Integer> inner = compileValue(expression, exp, env, i + 1, true);
 					i += inner.getSecond() + 1;
@@ -95,14 +151,14 @@ class ExpressionCompiler {
 				if (!op && tokenStart != i) {
 					tokens.add(compileToken(expression, tokenStart, i, exp));
 				}
-				if (!(token.getType() == TokenType.OPERATOR && !((Operator) token).isUnary())
+				if (!(token.getType() == TokenType.BINARY_OPERATOR && !((BinaryOperator) token).isUnary())
 						&& tokens.tail() != null && tokens.tail().token instanceof Value) {
-					tokens.add(Operator.MULTIPLY);
+					tokens.add(BinaryOperator.MULTIPLY);
 				}
-				if (token == Operator.SUBTRACT && (tokens.size() == 0 || !(tokens.tail().token instanceof Value))) {
-					token = Operator.NEGATE;
+				if (token == BinaryOperator.SUBTRACT && (tokens.size() == 0 || !(tokens.tail().token instanceof Value))) {
+					token = BinaryOperator.NEGATE;
 				}
-				op = token.getType() == TokenType.OPERATOR;
+				op = token.getType() == TokenType.BINARY_OPERATOR;
 				i += namedToken.getSecond() - 1;
 				tokenStart = i + 1;
 				tokens.add(token);
@@ -119,7 +175,7 @@ class ExpressionCompiler {
 		return new Pair<>(reduceTokens(tokens), i - begin);
 	}
 	
-	private static Pair<ArgumentList, Integer> compileArgumentList(String expression, CompiledExpression exp, EvaluationEnvironment env, int start) {
+	private static Pair<ArgumentList, Integer> compileArgumentList(String expression, CompiledExpression exp, ExpressionEnv env, int start) {
 		List<Value> values = new ArrayList<>();
 		int i = start;
 		loop:
@@ -156,8 +212,8 @@ class ExpressionCompiler {
 				createFunctionCall(node);
 				continue;
 			}
-			if (token.getType() == TokenType.OPERATOR) {
-				Operator op = (Operator) token;
+			if (token.getType() == TokenType.BINARY_OPERATOR) {
+				BinaryOperator op = (BinaryOperator) token;
 				OperatorList ops = priorities[op.getPriority()];
 				if (ops == null) {
 					ops = new OperatorList();
@@ -178,7 +234,9 @@ class ExpressionCompiler {
 			throw new ExpressionCompilationException("Token is not a value: " + token.toString());
 		}
 		if (tokens.size() > 1) {
-			throw new ExpressionCompilationException("Adjacent values have no operators between them");
+			StringJoiner joiner = new StringJoiner(", ");
+			tokens.forEach(t -> joiner.add(t.toString()));
+			throw new ExpressionCompilationException("Adjacent values have no operators between them: " + joiner.toString());
 		}
 		return (Value) tokens.head().token;
 	}
@@ -201,14 +259,14 @@ class ExpressionCompiler {
 	}
 	
 	private static void createOperation(Node node) {
-		Operator op = (Operator) node.token;
+		BinaryOperator op = (BinaryOperator) node.token;
 		if (node.next == null) {
 			throw new ExpressionCompilationException("Operator " + op + " has no following operand");
 		}
 		if (op.isUnary()) {
 			Token next = node.next.token;
 			node.removeAfter();
-			if (next.getType() == TokenType.OPERATOR) {
+			if (next.getType() == TokenType.BINARY_OPERATOR) {
 				throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 			}
 			if (next.getType() == TokenType.LITERAL_VALUE && op.canInline()) {
@@ -216,7 +274,7 @@ class ExpressionCompiler {
 				node.token = new LiteralValue(op.operate(literal.getValue()));
 				return;
 			}
-			node.token = new Operation(op, (Value) next);
+			node.token = new BinaryOperation(op, (Value) next);
 			return;
 		}
 		if (node.prev == null) {
@@ -226,7 +284,7 @@ class ExpressionCompiler {
 		node.removeAfter();
 		Token prev = node.prev.token;
 		node.removeBefore();
-		if (prev.getType() == TokenType.OPERATOR || next.getType() == TokenType.OPERATOR) {
+		if (prev.getType() == TokenType.BINARY_OPERATOR || next.getType() == TokenType.BINARY_OPERATOR) {
 			throw new ExpressionCompilationException("Adjacent operators have no values to operate on");
 		}
 		if (prev.getType() == TokenType.LITERAL_VALUE && next.getType() == TokenType.LITERAL_VALUE && op.canInline()) {
@@ -235,7 +293,7 @@ class ExpressionCompiler {
 			node.token = new LiteralValue(op.operate(lit1.getValue(), lit2.getValue()));
 			return;
 		}
-		node.token = new Operation(op, (Value) prev, (Value) next);
+		node.token = new BinaryOperation(op, (Value) prev, (Value) next);
 	}
 	
 	private static Token compileToken(String str, int start, int end, CompiledExpression exp) {

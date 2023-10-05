@@ -5,7 +5,7 @@ import redempt.crunch.CompiledExpression;
 import redempt.crunch.Crunch;
 import redempt.crunch.exceptions.ExpressionCompilationException;
 import redempt.crunch.exceptions.ExpressionEvaluationException;
-import redempt.crunch.functional.EvaluationEnvironment;
+import redempt.crunch.functional.ExpressionEnv;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,7 +71,7 @@ public class CrunchTest {
 		assertEquals(14, Crunch.evaluateExpression("$1 - $2", 10, -4), "Multiple variables");
 		assertThrows(ExpressionEvaluationException.class, () -> Crunch.evaluateExpression("$1"), "No variable value");
 		
-		EvaluationEnvironment env = new EvaluationEnvironment();
+		ExpressionEnv env = new ExpressionEnv();
 		env.setVariableNames("x", "y");
 		assertEquals(33, Crunch.compileExpression("x * y", env).evaluate(11, 3), "Multiplying named variables");
 		assertThrows(ExpressionEvaluationException.class, () -> Crunch.compileExpression("x * y", env).evaluate(1), "Too few values");
@@ -80,7 +80,7 @@ public class CrunchTest {
 	
 	@Test
 	public void functionTest() {
-		EvaluationEnvironment env = new EvaluationEnvironment();
+		ExpressionEnv env = new ExpressionEnv();
 		env.addFunction("mult", 2, d -> d[0] * d[1]);
 		env.addFunction("four", 0, d -> 4d);
 		assertEquals(45, Crunch.compileExpression("mult(15, 3)", env).evaluate(), "Basic function");
@@ -93,7 +93,7 @@ public class CrunchTest {
 	
 	@Test
 	public void implicitMultiplicationTest() {
-		EvaluationEnvironment env = new EvaluationEnvironment();
+		ExpressionEnv env = new ExpressionEnv();
 		env.setVariableNames("x", "y");
 		env.addFunction("mult", 2, d -> d[0] * d[1]);
 		assertEquals(12, Crunch.evaluateExpression("3(4)"), "Parenthetical");
@@ -111,7 +111,7 @@ public class CrunchTest {
 	
 	@Test
 	public void lazyVariableTest() {
-		EvaluationEnvironment env = new EvaluationEnvironment();
+		ExpressionEnv env = new ExpressionEnv();
 		env.addLazyVariable("x", () -> 2);
 		env.addLazyVariable("y", () -> 7);
 		assertEquals(14, Crunch.compileExpression("xy", env).evaluate());
@@ -128,5 +128,14 @@ public class CrunchTest {
         CompiledExpression expr = Crunch.compileExpression("rand1000000");
         assertNotEquals(expr.evaluate(), expr.evaluate());
     }
+
+	@Test
+	public void largeExpressionWithCustomFunctionTest() {
+		ExpressionEnv env = new ExpressionEnv();
+		env.addFunction("max", 2, d -> Math.max(d[0], d[1]));
+		String expr = "max( 0.0, (378044 * 100 / 100.0 - 294964) * 1.0 ) - 0.0";
+		CompiledExpression compiled = Crunch.compileExpression(expr, env);
+		assertEquals(compiled.evaluate(), 83080);
+	}
 
 }

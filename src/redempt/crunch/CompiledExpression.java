@@ -1,7 +1,7 @@
 package redempt.crunch;
 
 import redempt.crunch.exceptions.ExpressionEvaluationException;
-import redempt.crunch.token.Operation;
+import redempt.crunch.token.BinaryOperation;
 import redempt.crunch.token.TokenType;
 import redempt.crunch.token.Value;
 
@@ -41,7 +41,7 @@ public class CompiledExpression {
 			return -1;
 		}
 		int count = -1;
-		Operation operation = (Operation) value;
+		BinaryOperation operation = (BinaryOperation) value;
 		for (Value val : operation.getValues()) {
 			if (val.getType() == TokenType.VARIABLE) {
 				Variable var = (Variable) val;

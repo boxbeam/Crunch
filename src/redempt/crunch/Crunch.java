@@ -1,7 +1,7 @@
 package redempt.crunch;
 
-import redempt.crunch.functional.EvaluationEnvironment;
-import redempt.crunch.token.Operator;
+import redempt.crunch.functional.ExpressionEnv;
+import redempt.crunch.token.BinaryOperator;
 
 /**
  * Public API methods for compiling expressions
@@ -9,11 +9,11 @@ import redempt.crunch.token.Operator;
  */
 public class Crunch {
 	
-	private static final EvaluationEnvironment DEFAULT_EVALUATION_ENVIRONMENT = new EvaluationEnvironment();
+	private static final ExpressionEnv DEFAULT_EVALUATION_ENVIRONMENT = new ExpressionEnv();
 	
 	/**
 	 * Compiles a mathematical expression into a CompiledExpression. Variables must be integers starting at 1 prefixed
-	 * with $. Supported operations can be found in {@link Operator}, which lists the operations and their symbols
+	 * with $. Supported operations can be found in {@link BinaryOperator}, which lists the operations and their symbols
 	 * for use in expressions. Parenthesis are also supported.
 	 * @param expression The expression to compile
 	 * @return The compiled expression
@@ -24,13 +24,13 @@ public class Crunch {
 	
 	/**
 	 * Compiles a mathematical expression into a CompiledExpression. Variables must be integers starting at 1 prefixed
-	 * with $. Supported operations can be found in {@link Operator}, which lists the operations and their symbols
+	 * with $. Supported operations can be found in {@link BinaryOperator}, which lists the operations and their symbols
 	 * for use in expressions. Parenthesis are also supported.
 	 * @param expression The expression to compile
 	 * @param env The EvaluationEnvironment providing custom functions that can be used in the expression
 	 * @return The compiled expression
 	 */
-	public static CompiledExpression compileExpression(String expression, EvaluationEnvironment env) {
+	public static CompiledExpression compileExpression(String expression, ExpressionEnv env) {
 		return ExpressionCompiler.compile(expression, env);
 	}
 	

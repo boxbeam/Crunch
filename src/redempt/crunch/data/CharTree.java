@@ -1,5 +1,7 @@
 package redempt.crunch.data;
 
+import redempt.crunch.Parser;
+
 /**
  * A simple implementation of a prefix tree for better parsing
  * Only supports ASCII characters
@@ -66,6 +68,28 @@ public class CharTree<T> {
 			}
 		}
 		return new Pair<>(val, str.length() - index);
+	}
+	
+	public T getWith(Parser parser) {
+		Node node = root;
+		T val = null;
+		int lastParsed = parser.cur;
+		for (int i = lastParsed; i < parser.str.length(); i++) {
+			node = node.getNode(parser.str.charAt(i));
+			if (node == null) {
+				parser.cur = (val == null ? parser.cur : lastParsed);
+				return val;
+			}
+			T nodeValue = (T) node.getValue();
+			if (nodeValue != null) {
+				lastParsed = i;
+				val = nodeValue;
+			}
+		}
+		if (val != null) {
+			parser.cur = lastParsed;
+		}
+		return val;
 	}
 	
 	private static class Node {

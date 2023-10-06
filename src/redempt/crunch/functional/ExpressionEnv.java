@@ -35,11 +35,12 @@ public class ExpressionEnv {
 		}
 	}
 
-	private void alphabeticOnly(String name) {
-		for (int i = 0; i < name.length(); i++) {
-			if (!Character.isAlphabetic(name.charAt(i))) {
-				throw new IllegalArgumentException("Identifier '" + name + "' contains non-alphabetic characters");
-			}
+	private void checkName(String name) {
+		if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Identifier cannot be empty or null");
+		}
+		if (!Character.isAlphabetic(name.charAt(0))) {
+			throw new IllegalArgumentException("Identifier must begin with an alphabetic character");
 		}
 	}
 
@@ -48,7 +49,7 @@ public class ExpressionEnv {
 	 * @param function The function
 	 */
 	public void addFunction(Function function) {
-		alphabeticOnly(function.getName());
+		checkName(function.getName());
 		char[] chars = function.getName().toCharArray();
 		leadingOperators.set(function.getName(), function);
 	}
@@ -69,14 +70,14 @@ public class ExpressionEnv {
 	 * @param supply A function to supply the value of the variable when needed
 	 */
 	public void addLazyVariable(String name, DoubleSupplier supply) {
-		alphabeticOnly(name);
+		checkName(name);
 		values.set(name, new LazyVariable(name, supply));
 	}
 	
 	public void setVariableNames(String... names) {
 		varCount = names.length;
 		for (int i = 0; i < names.length; i++) {
-			alphabeticOnly(names[i]);
+			checkName(names[i]);
 			values.set(names[i], new Variable(null, i));
 		}
 	}

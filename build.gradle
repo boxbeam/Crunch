@@ -28,6 +28,9 @@ dependencies {
 test {
 	useJUnitPlatform()
 	workingDir = "test"
+    testLogging {
+        exceptionFormat = 'full'
+    }
 }
 
 sourceCompatibility = 1.8

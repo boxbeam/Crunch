@@ -1,8 +1,6 @@
 package redempt.crunch;
 
-import redempt.crunch.data.CharTree;
 import redempt.crunch.data.FastNumberParsing;
-import redempt.crunch.data.Pair;
 import redempt.crunch.exceptions.ExpressionCompilationException;
 import redempt.crunch.functional.ArgumentList;
 import redempt.crunch.functional.ExpressionEnv;
@@ -52,7 +50,7 @@ public class ExpressionParser {
         }
     }
 
-    private ExpressionCompilationException error(String msg) {
+    private void error(String msg) {
         throw new ExpressionCompilationException(this, msg);
     }
 
@@ -61,25 +59,6 @@ public class ExpressionParser {
             cur++;
         }
         return true;
-    }
-    
-    public boolean strMatches(String prefix, boolean advance) {
-        boolean matches = str.regionMatches(cur, prefix, 0, prefix.length());
-        if (matches && advance) {
-            cur += prefix.length();
-        }
-        return matches;
-    }
-    
-    public <T> T getWith(CharTree<T> tree) {
-        Pair<T, Integer> result = tree.getFrom(str, cur);
-        T parsed = result.getFirst();
-        if (parsed == null) {
-            return null;
-        }
-        int offset = result.getSecond();
-        cur += offset;
-        return parsed;
     }
 
     private Value parseExpression() {
@@ -93,11 +72,11 @@ public class ExpressionParser {
         ShuntingYard tokens = new ShuntingYard();
         tokens.addValue(first);
         while (whitespace() && !isAtEnd() && peek() != ')' && peek() != ',') {
-            Token token = env.getBinaryOperators().getWith(this);
+            BinaryOperator token = env.getBinaryOperators().getWith(this);
             if (token == null) {
                 error("Expected binary operator");
             }
-            tokens.addOperator((BinaryOperator) token);
+            tokens.addOperator(token);
             whitespace();
             tokens.addValue(parseTerm());
         }

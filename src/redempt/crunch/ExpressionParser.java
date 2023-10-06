@@ -152,7 +152,12 @@ public class ExpressionParser {
         whitespace();
         switch (token.getType()) {
             case UNARY_OPERATOR:
-                return new UnaryOperation((UnaryOperator) token, parseTerm());
+                UnaryOperator op = (UnaryOperator) token;
+                Value term = parseTerm();
+                if (op.isPure() && term.getType() == TokenType.LITERAL_VALUE) {
+                    return new LiteralValue(op.operate.applyAsDouble(term.getValue()));
+                }
+                return new UnaryOperation((UnaryOperator) token, term);
             case FUNCTION:
                 Function function = (Function) token;
                 ArgumentList args = parseArgumentList(function.getArgCount());

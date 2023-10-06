@@ -121,6 +121,13 @@ public class CrunchTest {
     }
 
 	@Test
+	public void inlineTest() {
+		assertEquals("6.0", Crunch.compileExpression("1 + 2 + 3").toString());
+		assertEquals("-1.0", Crunch.compileExpression("-1").toString());
+		assertEquals("1.0", Crunch.compileExpression("--1").toString());
+	}
+
+	@Test
 	public void largeExpressionWithCustomFunctionTest() {
 		ExpressionEnv env = new ExpressionEnv();
 		env.addFunction("max", 2, d -> Math.max(d[0], d[1]));

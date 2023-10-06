@@ -22,14 +22,20 @@ public enum UnaryOperator implements Token {
     LOG("log", Math::log),
     SQRT("sqrt", Math::sqrt),
     CBRT("cbrt", Math::cbrt),
-    RAND("rand", d -> ThreadLocalRandom.current().nextDouble() * d);
+    RAND("rand", d -> ThreadLocalRandom.current().nextDouble() * d, false);
 
     public final String symbol;
     public final DoubleUnaryOperator operate;
+    private boolean pure = true;
     
     private UnaryOperator(String symbol, DoubleUnaryOperator operate) {
         this.symbol = symbol;
         this.operate = operate;
+    }
+
+    private UnaryOperator(String symbol, DoubleUnaryOperator operate, boolean pure) {
+        this(symbol, operate);
+        this.pure = pure;
     }
     
     @Override
@@ -40,7 +46,11 @@ public enum UnaryOperator implements Token {
     public int getPriority() {
         return 6;
     }
-    
+
+    public boolean isPure() {
+        return pure;
+    }
+
     @Override
     public String toString() {
         return symbol;

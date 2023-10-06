@@ -1,8 +1,6 @@
 package redempt.crunch;
 
-import redempt.crunch.token.BinaryOperation;
-import redempt.crunch.token.BinaryOperator;
-import redempt.crunch.token.Value;
+import redempt.crunch.token.*;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -27,7 +25,11 @@ public class ShuntingYard {
         BinaryOperator op = operators.removeLast();
         Value right = stack.removeLast();
         Value left = stack.removeLast();
-        stack.add(new BinaryOperation(op, left, right));
+        if (right.getType() == TokenType.LITERAL_VALUE && left.getType() == TokenType.LITERAL_VALUE) {
+            stack.add(new LiteralValue(op.operate.applyAsDouble(left.getValue(), right.getValue())));
+        } else {
+            stack.add(new BinaryOperation(op, left, right));
+        }
     }
 
     public Value finish() {

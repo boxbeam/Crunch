@@ -1,6 +1,6 @@
 package redempt.crunch.data;
 
-import redempt.crunch.Parser;
+import redempt.crunch.ExpressionParser;
 
 /**
  * A simple implementation of a prefix tree for better parsing
@@ -70,7 +70,7 @@ public class CharTree<T> {
 		return new Pair<>(val, str.length() - index);
 	}
 	
-	public T getWith(Parser parser) {
+	public T getWith(ExpressionParser parser) {
 		Node node = root;
 		T val = null;
 		int lastParsed = parser.cur;

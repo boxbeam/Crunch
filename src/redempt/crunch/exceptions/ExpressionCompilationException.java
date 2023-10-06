@@ -1,17 +1,17 @@
 package redempt.crunch.exceptions;
 
-import redempt.crunch.Parser;
+import redempt.crunch.ExpressionParser;
 
 public class ExpressionCompilationException extends RuntimeException {
 	
-	private Parser parser;
+	private ExpressionParser parser;
 
-	public ExpressionCompilationException(Parser parser, String message) {
+	public ExpressionCompilationException(ExpressionParser parser, String message) {
 		super(message);
 		this.parser = parser;
 	}
 
-	public Parser getParser() {
+	public ExpressionParser getParser() {
 		return parser;
 	}
 	

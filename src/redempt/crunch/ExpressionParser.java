@@ -11,13 +11,21 @@ import redempt.crunch.functional.FunctionCall;
 import redempt.crunch.token.*;
 
 public class ExpressionParser {
-    
+
     public final String str;
     public int cur = 0;
     public final ExpressionEnv env;
     private CompiledExpression expr = new CompiledExpression();
+    private int maxVarIndex;
     
-    public ExpressionParser(String str, ExpressionEnv env) {
+    ExpressionParser(String str, ExpressionEnv env) {
+        if (str == null) {
+            throw new ExpressionCompilationException(null, "Expression is null");
+        }
+        if (env == null) {
+            throw new ExpressionCompilationException(null, "Environment is null");
+        }
+        maxVarIndex = env.getVariableCount() - 1;
         this.str = str;
         this.env = env;
     }
@@ -39,7 +47,7 @@ public class ExpressionParser {
     }
 
     public void expectChar(char c) {
-        if (advance() != c) {
+        if (isAtEnd() || advance() != c) {
             throw new ExpressionCompilationException(this, "Expected '" + c + "'");
         }
     }
@@ -48,10 +56,11 @@ public class ExpressionParser {
         throw new ExpressionCompilationException(this, msg);
     }
 
-    public void whitespace() {
-        while (Character.isWhitespace(peek())) {
+    private boolean whitespace() {
+        while (!isAtEnd() && Character.isWhitespace(peek())) {
             cur++;
         }
+        return true;
     }
     
     public boolean strMatches(String prefix, boolean advance) {
@@ -74,16 +83,18 @@ public class ExpressionParser {
     }
 
     private Value parseExpression() {
+        if (isAtEnd()) {
+            error("Expected expression");
+        }
         Value first = parseTerm();
         if (isAtEnd() || peek() == ')') {
             return first;
         }
         ShuntingYard tokens = new ShuntingYard();
         tokens.addValue(first);
-        whitespace();
-        while (!isAtEnd() && peek() != ')') {
-            Token token = env.getNamedTokens().getWith(this);
-            if (!(token instanceof BinaryOperator)) {
+        while (whitespace() && !isAtEnd() && peek() != ')' && peek() != ',') {
+            Token token = env.getBinaryOperators().getWith(this);
+            if (token == null) {
                 error("Expected binary operator");
             }
             tokens.addOperator((BinaryOperator) token);
@@ -99,6 +110,20 @@ public class ExpressionParser {
         Value expression = parseExpression();
         expectChar(')');
         return expression;
+    }
+
+    private Value parseAnonymousVariable() {
+        expectChar('$');
+        double value = parseLiteral().getValue();
+        if (value % 1 != 0) {
+            error("Decimal variable indices are not allowed");
+        }
+        if (value < 1) {
+            error("Zero and negative variable indices are not allowed");
+        }
+        int index = (int) value - 1;
+        maxVarIndex = Math.max(index, maxVarIndex);
+        return new Variable(expr, index);
     }
 
     private Value parseTerm() {
@@ -117,18 +142,21 @@ public class ExpressionParser {
                 return parseLiteral();
             case '(':
                 return parseNestedExpression();
+            case '$':
+                return parseAnonymousVariable();
         }
-        Token token = env.getNamedTokens().getWith(this);
-        if (token == null) {
+        Token leadingOperator = env.getLeadingOperators().getWith(this);
+        if (leadingOperator != null) {
+            return parseLeadingOperation(leadingOperator);
+        }
+        Value term = env.getValues().getWith(this);
+        if (term == null) {
             error("Expected value");
         }
-        if (token instanceof Value) {
-            if (token instanceof Variable) {
-                ((Variable) token).expression = expr;
-            }
-            return (Value) token;
+        if (term instanceof Variable) {
+            ((Variable) term).expression = expr;
         }
-        return parseLeadingOperation(token);
+        return term;
     }
 
     private LiteralValue parseLiteral() {
@@ -136,14 +164,13 @@ public class ExpressionParser {
         char c;
         while (Character.isDigit(c = peek()) || c == '.') {
             advanceCursor();
+            if (isAtEnd()) break;
         }
-        return new LiteralValue(FastNumberParsing.parseInt(str, start, cur));
+        return new LiteralValue(FastNumberParsing.parseDouble(str, start, cur));
     }
 
     private Value parseLeadingOperation(Token token) {
-        if (token instanceof Value) {
-            return (Value) token;
-        }
+        whitespace();
         switch (token.getType()) {
             case UNARY_OPERATOR:
                 return new UnaryOperation((UnaryOperator) token, parseTerm());
@@ -168,6 +195,7 @@ public class ExpressionParser {
         whitespace();
         for (int i = 1; i < args; i++) {
             expectChar(',');
+            whitespace();
             values[i] = parseExpression();
             whitespace();
         }
@@ -177,8 +205,13 @@ public class ExpressionParser {
     }
 
     public CompiledExpression parse() {
+        whitespace();
         Value value = parseExpression();
-        expr.setValue(value);
+        whitespace();
+        if (!isAtEnd()) {
+            error("Dangling term");
+        }
+        expr.initialize(value, maxVarIndex + 1);
         return expr;
     }
     

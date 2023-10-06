@@ -1,5 +1,5 @@
 package redempt.crunch.functional;
-EvaluationEnvironment
+
 /**
  * Legacy, redirects to {@link ExpressionEnv}
  */

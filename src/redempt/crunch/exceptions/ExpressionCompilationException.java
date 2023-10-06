@@ -7,12 +7,27 @@ public class ExpressionCompilationException extends RuntimeException {
 	private ExpressionParser parser;
 
 	public ExpressionCompilationException(ExpressionParser parser, String message) {
-		super(message);
+		super(generateMessage(parser, message));
 		this.parser = parser;
 	}
 
 	public ExpressionParser getParser() {
 		return parser;
+	}
+
+	private static String generateMessage(ExpressionParser parser, String message) {
+		if (parser == null) {
+			return message;
+		}
+		return message + ":\n" + parser.str + "\n" + repeat(' ', parser.cur) + "^";
+	}
+
+	private static String repeat(char c, int n) {
+		StringBuilder builder = new StringBuilder(n);
+		for (int i = 0; i < n; i++) {
+			builder.append(c);
+		}
+		return builder.toString();
 	}
 	
 }

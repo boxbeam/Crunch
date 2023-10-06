@@ -17,42 +17,18 @@ public class CompiledExpression {
 	
     protected CompiledExpression() {}
 
-	public CompiledExpression(Value value) {
-        setValue(value);
+	public CompiledExpression(Value value, int variableCount) {
+        initialize(value, variableCount);
     }
 
-    protected void setValue(Value value) {
+    protected void initialize(Value value, int variableCount) {
         this.value = value;
-        variableCount = recursiveVariableMaxIndex(value) + 1;
+		this.variableCount = variableCount;
     }
 	
 	protected void setVariableValues(double[] values) {
 		checkArgCount(values.length);
 		variableValues = values;
-	}
-
-	private int recursiveVariableMaxIndex(Value value) {
-		if (value.getType() == TokenType.VARIABLE) {
-			Variable var = (Variable) value;
-			var.expression = this;
-			return var.getIndex();
-		}
-		if (value.getType() != TokenType.OPERATION) {
-			return -1;
-		}
-		int count = -1;
-		BinaryOperation operation = (BinaryOperation) value;
-		for (Value val : operation.getValues()) {
-			if (val.getType() == TokenType.VARIABLE) {
-				Variable var = (Variable) val;
-				var.expression = this;
-				count = Math.max(count, var.getIndex());
-			}
-			if (val.getType() == TokenType.OPERATION) {
-				count = Math.max(count, recursiveVariableMaxIndex(val));
-			}
-		}
-		return count;
 	}
 	
     /**
@@ -131,7 +107,7 @@ public class CompiledExpression {
 	 * @return A clone of this CompiledExpression
 	 */
 	public CompiledExpression clone() {
-		return new CompiledExpression(value.getClone());
+		return new CompiledExpression(value.getClone(), variableCount);
 	}
 	
 	/**

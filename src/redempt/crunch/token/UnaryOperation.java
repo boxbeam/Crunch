@@ -28,7 +28,7 @@ public class UnaryOperation implements Value {
     }
 
     public String toString() {
-        return "(" + first.toString() + operator.symbol + ")";
+        return "(" + operator.symbol +  first.toString() + ")";
     }
 
     public UnaryOperation getClone() {

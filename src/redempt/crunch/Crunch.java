@@ -19,7 +19,7 @@ public class Crunch {
 	 * @return The compiled expression
 	 */
 	public static CompiledExpression compileExpression(String expression) {
-		return ExpressionCompiler.compile(expression, DEFAULT_EVALUATION_ENVIRONMENT);
+		return new ExpressionParser(expression, DEFAULT_EVALUATION_ENVIRONMENT).parse();
 	}
 	
 	/**
@@ -31,7 +31,7 @@ public class Crunch {
 	 * @return The compiled expression
 	 */
 	public static CompiledExpression compileExpression(String expression, ExpressionEnv env) {
-		return ExpressionCompiler.compile(expression, env);
+		return new ExpressionParser(expression, env).parse();
 	}
 	
 	/**
@@ -42,7 +42,7 @@ public class Crunch {
 	 * @return The value of the expression
 	 */
 	public static double evaluateExpression(String expression, double... varValues) {
-		CompiledExpression exp = ExpressionCompiler.compile(expression, DEFAULT_EVALUATION_ENVIRONMENT);
+		CompiledExpression exp = new ExpressionParser(expression, DEFAULT_EVALUATION_ENVIRONMENT).parse();
 		return exp.evaluate(varValues);
 	}
 	

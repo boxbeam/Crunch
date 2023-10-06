@@ -77,7 +77,7 @@ public class CharTree<T> {
 		for (int i = lastParsed; i < parser.str.length(); i++) {
 			node = node.getNode(parser.str.charAt(i));
 			if (node == null) {
-				parser.cur = (val == null ? parser.cur : lastParsed);
+				parser.cur = (val == null ? parser.cur : lastParsed + 1);
 				return val;
 			}
 			T nodeValue = (T) node.getValue();
@@ -87,7 +87,7 @@ public class CharTree<T> {
 			}
 		}
 		if (val != null) {
-			parser.cur = lastParsed;
+			parser.cur = lastParsed + 1;
 		}
 		return val;
 	}

@@ -35,7 +35,7 @@ public class FastNumberParsing {
 		for (; i < end; i++) {
 			char c = input.charAt(i);
 			if (c > '9' || c < '0') {
-				throw new NumberFormatException("Non-numeric character in input '" + input + "'");
+				throw new NumberFormatException("Non-numeric character in input '" + input.substring(start, end) + "'");
 			}
 			output *= 10;
 			output += c - '0';

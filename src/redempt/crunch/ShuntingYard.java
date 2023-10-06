@@ -23,11 +23,11 @@ public class ShuntingYard {
         stack.add(value);
     }
 
-    private BinaryOperation createOperation() {
+    private void createOperation() {
         BinaryOperator op = operators.removeLast();
         Value right = stack.removeLast();
         Value left = stack.removeLast();
-        return new BinaryOperation(op, left, right);
+        stack.add(new BinaryOperation(op, left, right));
     }
 
     public Value finish() {

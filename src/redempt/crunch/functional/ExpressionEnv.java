@@ -13,37 +13,44 @@ import java.util.function.ToDoubleFunction;
  * @author Redempt
  */
 public class ExpressionEnv {
-	
-	private CharTree<Token> namedTokens;
+
+	private CharTree<BinaryOperator> binaryOperators = new CharTree<>();
+	private CharTree<Token> leadingOperators = new CharTree<>();
+	private CharTree<Value> values = new CharTree<>();
+
+	private int varCount = 0;
 	
 	/**
 	 * Creates a new EvaluationEnvironment
 	 */
 	public ExpressionEnv() {
-		namedTokens = new CharTree<>();
 		for (BinaryOperator op : BinaryOperator.values()) {
-			namedTokens.set(op.symbol, op);
+			binaryOperators.set(op.symbol, op);
 		}
 		for (UnaryOperator op : UnaryOperator.values()) {
-			namedTokens.set(op.symbol, op);
+			leadingOperators.set(op.symbol, op);
 		}
 		for (Constant con : Constant.values()) {
-			namedTokens.set(con.toString().toLowerCase(Locale.ROOT), con);
+			values.set(con.toString().toLowerCase(Locale.ROOT), con);
 		}
 	}
-	
+
+	private void alphabeticOnly(String name) {
+		for (int i = 0; i < name.length(); i++) {
+			if (!Character.isAlphabetic(name.charAt(i))) {
+				throw new IllegalArgumentException("Identifier '" + name + "' contains non-alphabetic characters");
+			}
+		}
+	}
+
 	/**
 	 * Adds a Function that can be called from expressions with this environment
 	 * @param function The function
 	 */
 	public void addFunction(Function function) {
+		alphabeticOnly(function.getName());
 		char[] chars = function.getName().toCharArray();
-		for (char c : chars) {
-			if (c > 255) {
-				throw new IllegalArgumentException("Function names must be ASCII only");
-			}
-		}
-		namedTokens.set(function.getName(), function);
+		leadingOperators.set(function.getName(), function);
 	}
 	
 	/**
@@ -62,12 +69,15 @@ public class ExpressionEnv {
 	 * @param supply A function to supply the value of the variable when needed
 	 */
 	public void addLazyVariable(String name, DoubleSupplier supply) {
-		namedTokens.set(name, new LazyVariable(name, supply));
+		alphabeticOnly(name);
+		values.set(name, new LazyVariable(name, supply));
 	}
 	
 	public void setVariableNames(String... names) {
+		varCount = names.length;
 		for (int i = 0; i < names.length; i++) {
-			namedTokens.set(names[i], new Variable(null, i));
+			alphabeticOnly(names[i]);
+			values.set(names[i], new Variable(null, i));
 		}
 	}
 	
@@ -80,16 +90,33 @@ public class ExpressionEnv {
 	public void addFunction(String name, int argCount, ToDoubleFunction<double[]> func) {
 		addFunction(new Function(name, argCount, func));
 	}
-	
+
 	/**
-	 * Removes all functions
+	 * @return The prefix tree of all leading operators, including unary operators and functions
 	 */
-	public void clearFunctions() {
-		namedTokens = new CharTree<>();
+	public CharTree<Token> getLeadingOperators() {
+		return leadingOperators;
 	}
-	
-	public CharTree<Token> getNamedTokens() {
-		return namedTokens;
+
+	/**
+	 * @return The prefix tree of all binary operators
+	 */
+	public CharTree<BinaryOperator> getBinaryOperators() {
+		return binaryOperators;
+	}
+
+	/**
+	 * @return The prefix tree of all values, including constants, variables, and lazy variables
+	 */
+	public CharTree<Value> getValues() {
+		return values;
+	}
+
+	/**
+	 * @return The number of variables in this expression environment
+	 */
+	public int getVariableCount() {
+		return varCount;
 	}
 	
 }

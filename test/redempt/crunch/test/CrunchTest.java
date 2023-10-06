@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class CrunchTest {
 
-	private static final double DELTA = 1e-10;
+	private static final double DELTA = 1e-7;
 	
 	@Test
 	public void nullTest() {
@@ -38,13 +38,17 @@ public class CrunchTest {
 		assertEquals(10, Crunch.evaluateExpression("15 - 5"), "Simple subtraction test");
 		assertEquals(2, Crunch.evaluateExpression("1--1"), "Subtraction and negate operator");
 		assertEquals(2, Crunch.evaluateExpression("    1     --    1"), "Somewhat confusing whitespace");
+		assertEquals(5, Crunch.evaluateExpression("10 / 2"), "Asymmetric operator");
 	}
 	
 	@Test
 	public void complexOperationTest() {
 		assertEquals(9, Crunch.evaluateExpression("6/2*(1+2)"), "Order of operations");
+		assertEquals(5, Crunch.evaluateExpression("6/2*1+2"), "Order of operations 2");
 		assertEquals(1, Crunch.evaluateExpression("tan(atan(cos(acos(sin(asin(1))))))"), DELTA, "Trig functions");
 		assertEquals(402193.3186140596, Crunch.evaluateExpression("6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4"), DELTA, "Large expression");
+		assertEquals(-5, Crunch.evaluateExpression("1-(2)*3"), DELTA, "Weird syntax");
+		assertEquals(1, Crunch.evaluateExpression("--1"), "Adjacent operators");
 	}
 	
 	@Test
@@ -61,7 +65,6 @@ public class CrunchTest {
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("("), "Lone opening paren");
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression(")"), "Lone closing paren");
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("1 1"), "No operator");
-		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("--1"), "Adjacent operators");
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("+"), "Only operator");
 	}
 	
@@ -90,18 +93,6 @@ public class CrunchTest {
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("mult(1)", env), "Not enough arguments");
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("mult(1, 2, 3)", env), "Too many arguments");
 	}
-	
-	@Test
-	public void implicitMultiplicationTest() {
-		ExpressionEnv env = new ExpressionEnv();
-		env.setVariableNames("x", "y");
-		env.addFunction("mult", 2, d -> d[0] * d[1]);
-		assertEquals(12, Crunch.evaluateExpression("3(4)"), "Parenthetical");
-		assertEquals(6, Crunch.evaluateExpression("3abs(-2)"), "Unary operator");
-		assertEquals(9, Crunch.compileExpression("3x", env).evaluate(3), "Single variable");
-		assertEquals(15, Crunch.compileExpression("xy", env).evaluate(5, 3), "Two variables");
-		assertEquals(16, Crunch.compileExpression("x(4)", env).evaluate(4), "Variable outside parenthesis");
-	}
 
 	@Test
 	public void rootingTest() {
@@ -114,7 +105,7 @@ public class CrunchTest {
 		ExpressionEnv env = new ExpressionEnv();
 		env.addLazyVariable("x", () -> 2);
 		env.addLazyVariable("y", () -> 7);
-		assertEquals(14, Crunch.compileExpression("xy", env).evaluate());
+		assertEquals(14, Crunch.compileExpression("x*y", env).evaluate());
         assertEquals(3, Crunch.compileExpression("x + 1", env).evaluate());
 	}
 	

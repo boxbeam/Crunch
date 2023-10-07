@@ -18,7 +18,7 @@ public class UnaryOperation implements Value {
     }
     
     @Override
-	public double getValue() {
+    public double getValue() {
         return operator.operate.applyAsDouble(first.getValue());
     }
 

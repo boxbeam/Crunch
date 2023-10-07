@@ -66,7 +66,7 @@ public class ExpressionParser {
             error("Expected expression");
         }
         Value first = parseTerm();
-        if (isAtEnd() || peek() == ')') {
+        if (isAtEnd() || peek() == ')' || peek() == ',') {
             return first;
         }
         ShuntingYard tokens = new ShuntingYard();

@@ -110,52 +110,41 @@ CompiledExpressions are NOT thread-safe, and may have issues if `evaluate` is ca
 
 Performance is one of the largest benefits of using Crunch. It is designed to be extremely performant, and lives up to that expectation. For cases where you need to perform a lot of evaluations quickly from a string-compiled mathematical expression, Crunch is the best option.
 
-Here I will compare the runtimes of Crunch against three similar librararies: [EvalEx](https://github.com/uklimaschewski/EvalEx), [exp4j](https://github.com/fasseg/exp4j), and [java.math.expression.parser](https://github.com/sbesada/java.math.expression.parser). I will compare both compilation times and evaluation times.
+Here I will compare the runtimes of Crunch against two similar librararies: [EvalEx](https://github.com/uklimaschewski/EvalEx) and [exp4j](https://github.com/fasseg/exp4j). I will compare both compilation times and evaluation times.
 
-CPU: AMD Ryzen 5 2600
+CPU: AMD Ryzen 7 5800X
+
+Benchmark source: https://github.com/Redempt/CrunchBenchmark
 
 ## Compilation
-
-Expression: `3*5`
-
-| Crunch | EvalEx | exp4j  | java.math.expression.parser |
-|:-------|--------|--------|-------|
-|22μs    |502μs   |64μs    |48μs|
-
-Expression: `6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4`
-
-| Crunch | EvalEx | exp4j | java.math.expression.parser |
-|:-------|--------|-------|---------|
-|532μs   |559μs   |811μs  |687μs|
-
-As you can see, Crunch is much faster at compiling short expressions, and stacks up pretty evenly with long expressions. EvalEx is actually misleading here, though, as it doesn't compile an expression when its `Expression` class is initialized - it doesn't touch the string at all until evaluate is called. Even so, Crunch can compile this long expression in the time it takes EvalEx to initialize its operators without even touching the string. java.math.expression.parser and exp4j are both roughly comparable to Crunch for compilation times here, moreso for longer expressions.
+Simple expression: `3*5`
+Complex expression: `6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4`
+```
+Benchmark                                        Mode      Score     Error  Units
+CompileBenchmark.crunchCompileComplexExpression  avgt      2.974 ±   0.033  us/op
+CompileBenchmark.crunchCompileSimpleExpression   avgt      0.050 ±   0.001  us/op
+CompileBenchmark.evalExCompileComplexExpression  avgt     38.450 ±   0.526  us/op
+CompileBenchmark.evalExCompileSimpleExpression   avgt      9.156 ±   0.256  us/op
+CompileBenchmark.exp4jCompileComplexExpression   avgt      3.464 ±   0.026  us/op
+CompileBenchmark.exp4jCompileSimpleExpression    avgt      0.276 ±   0.009  us/op
+```
 
 ## Evaluation
 
-The times shown below are for 10,000 evaluations.
+Simple expression: `(10*x)+5/2`
+Constant expression: `6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4`
 
-Expression: `6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4 + 6.5*7.8^2.3 + (3.5^3+7/2)^3 -(5*4/(2-3))*4`
-
-| Crunch | EvalEx | exp4j  | java.math.expression.parser |
-|:-------|--------|--------|----------|
-|504μs   |24,621μs|30,778μs|279,162μs |
-
-Crunch has an unfair advantage in this scenario, though, since it simplifies expressions using only constants where possible. Since this expression is made of only constants, Crunch will reduce it to a single constant value rather than running through all of the values every time. java.math.expression.parser doesn't seem to have a way to compile an expression, so it essentially has to start from scratch for each evaluation.
-
-So now for a more realistic test: A simple expression using a variable.
-
-Expression: `3*x`
-
-
-| Crunch | EvalEx | exp4j | java.math.expression.parser |
-|:-------|--------|-------|-----------|
-|1,315μs |31,654μs|9,495μs|62,581μs |
-
-In both cases, Crunch is about 25-50 times faster than EvalEx for evaluation, and 7-60 times faster than exp4j. There is no reasonable comparison to java.math.expression.parser because it cannot truly compile expressions.
+```
+Benchmark                                        Mode      Score     Error  Units
+EvalBenchmark.crunchConstantEval                 avgt      0.823 ±   0.020  ns/op
+EvalBenchmark.crunchSimpleEval                   avgt      4.296 ±   0.058  ns/op
+EvalBenchmark.evalExConstantEval                 avgt  26156.342 ± 183.188  ns/op
+EvalBenchmark.evalExSimpleEval                   avgt   2283.572 ±  19.630  ns/op
+EvalBenchmark.exp4jConstantEval                  avgt    540.194 ±   4.434  ns/op
+EvalBenchmark.exp4jSimpleEval                    avgt     44.727 ±   0.554  ns/op
+```
 
 # Operations and Syntax
-
-Implicit multiplication - `xy` is identical to `x*y`, `3x` is identical to `3*x`, `3(4)` is identical to `3*(4)`, `3cosx` is identical to `3*cosx`, etc.
 
 `()` - Create a parenthetical expression which will be evaluated first (`3 * (4 + 1)`)
 

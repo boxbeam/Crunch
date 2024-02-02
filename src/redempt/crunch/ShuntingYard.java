@@ -7,11 +7,11 @@ import java.util.Deque;
 
 public class ShuntingYard {
 
-    private Deque<BinaryOperator> operators = new ArrayDeque<>();
-    private Deque<Value> stack = new ArrayDeque<>();
+    private final Deque<BinaryOperator> operators = new ArrayDeque<>();
+    private final Deque<Value> stack = new ArrayDeque<>();
 
     public void addOperator(BinaryOperator operator) {
-        while (!operators.isEmpty() && operator.priority <= operators.getLast().priority) {
+        while (!operators.isEmpty() && operator.getPriority() <= operators.getLast().getPriority()) {
             createOperation();
         }
         operators.add(operator);
@@ -26,7 +26,7 @@ public class ShuntingYard {
         Value right = stack.removeLast();
         Value left = stack.removeLast();
         if (right.getType() == TokenType.LITERAL_VALUE && left.getType() == TokenType.LITERAL_VALUE) {
-            stack.add(new LiteralValue(op.operate.applyAsDouble(left.getValue(), right.getValue())));
+            stack.add(new LiteralValue(op.getOperation().applyAsDouble(left.getValue(), right.getValue())));
         } else {
             stack.add(new BinaryOperation(op, left, right));
         }

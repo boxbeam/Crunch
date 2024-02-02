@@ -9,19 +9,19 @@ import redempt.crunch.functional.ExpressionEnv;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CrunchTest {
+class CrunchTest {
 
 	private static final double DELTA = 1e-7;
 	
 	@Test
-	public void nullTest() {
+	void nullTest() {
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression(null), "Null single argument");
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression(null, null), "Null multi-argument");
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("1", null), "Second argument null");
 	}
 	
 	@Test
-	public void constantTest() {
+	void constantTest() {
 		assertEquals(Math.PI, Crunch.evaluateExpression("pi"), DELTA, "Pi equality");
 		assertEquals(Math.E, Crunch.evaluateExpression("e"), DELTA, "Euler's constant equality");
 		assertEquals(1, Crunch.evaluateExpression("true"), DELTA, "True equal to 1");
@@ -30,7 +30,7 @@ public class CrunchTest {
 	}
 
 	@Test
-	public void basicOperationTest() {
+	void basicOperationTest() {
 		assertEquals(2, Crunch.evaluateExpression("1+1"), "Simple addition");
 		assertEquals(2, Crunch.evaluateExpression("1 + 1"), "Simple expression with whitespace");
 		assertEquals(2, Crunch.evaluateExpression("            1      +       1       "), "Lots of whitespace");
@@ -42,7 +42,7 @@ public class CrunchTest {
 	}
 	
 	@Test
-	public void complexOperationTest() {
+	void complexOperationTest() {
 		assertEquals(9, Crunch.evaluateExpression("6/2*(1+2)"), "Order of operations");
 		assertEquals(5, Crunch.evaluateExpression("6/2*1+2"), "Order of operations 2");
 		assertEquals(1, Crunch.evaluateExpression("tan(atan(cos(acos(sin(asin(1))))))"), DELTA, "Trig functions");
@@ -52,7 +52,7 @@ public class CrunchTest {
 	}
 	
 	@Test
-	public void booleanLogicTest() {
+	void booleanLogicTest() {
 		assertEquals(1, Crunch.evaluateExpression("true & true"), "Boolean and");
 		assertEquals(1, Crunch.evaluateExpression("true | false"), "Boolean or");
 		assertEquals(0, Crunch.evaluateExpression("true & (true & false | false)"), "More complex boolean expression");
@@ -61,7 +61,7 @@ public class CrunchTest {
 	}
 	
 	@Test
-	public void syntaxTest() {
+	void syntaxTest() {
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("("), "Lone opening paren");
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression(")"), "Lone closing paren");
 		assertThrows(ExpressionCompilationException.class, () -> Crunch.compileExpression("1 1"), "No operator");
@@ -69,7 +69,7 @@ public class CrunchTest {
 	}
 	
 	@Test
-	public void variableTest() {
+	void variableTest() {
 		assertEquals(10, Crunch.evaluateExpression("$1", 10), "Basic variable value");
 		assertEquals(14, Crunch.evaluateExpression("$1 - $2", 10, -4), "Multiple variables");
 		assertThrows(ExpressionEvaluationException.class, () -> Crunch.evaluateExpression("$1"), "No variable value");
@@ -82,7 +82,7 @@ public class CrunchTest {
 	}
 	
 	@Test
-	public void functionTest() {
+	void functionTest() {
 		ExpressionEnv env = new ExpressionEnv();
 		env.addFunction("mult", 2, d -> d[0] * d[1]);
 		env.addFunction("four", 0, d -> 4d);
@@ -95,13 +95,13 @@ public class CrunchTest {
 	}
 
 	@Test
-	public void rootingTest() {
+	void rootingTest() {
 		assertEquals(2, Crunch.evaluateExpression("sqrt(4)"), "Square Rooting");
 		assertEquals(2, Crunch.evaluateExpression("cbrt(8)"), "Cube Rooting");
 	}
 	
 	@Test
-	public void lazyVariableTest() {
+	void lazyVariableTest() {
 		ExpressionEnv env = new ExpressionEnv();
 		env.addLazyVariable("x", () -> 2);
 		env.addLazyVariable("y", () -> 7);
@@ -110,30 +110,30 @@ public class CrunchTest {
 	}
 	
     @Test
-    public void scientificNotationTest() {
+    void scientificNotationTest() {
         assertEquals(2E7, Crunch.evaluateExpression("2E7"), DELTA);
     }
 
     @Test
-    public void noInlineRandomTest() {
+    void noInlineRandomTest() {
         CompiledExpression expr = Crunch.compileExpression("rand1000000");
         assertNotEquals(expr.evaluate(), expr.evaluate());
     }
 
 	@Test
-	public void inlineTest() {
+	void inlineTest() {
 		assertEquals("6.0", Crunch.compileExpression("1 + 2 + 3").toString());
 		assertEquals("-1.0", Crunch.compileExpression("-1").toString());
 		assertEquals("1.0", Crunch.compileExpression("--1").toString());
 	}
 
 	@Test
-	public void largeExpressionWithCustomFunctionTest() {
+	void largeExpressionWithCustomFunctionTest() {
 		ExpressionEnv env = new ExpressionEnv();
 		env.addFunction("max", 2, d -> Math.max(d[0], d[1]));
 		String expr = "max( 0.0, (378044 * 100 / 100.0 - 294964) * 1.0 ) - 0.0";
 		CompiledExpression compiled = Crunch.compileExpression(expr, env);
-		assertEquals(compiled.evaluate(), 83080);
+		assertEquals(83080, compiled.evaluate());
 	}
 
 }

@@ -14,9 +14,9 @@ import java.util.function.ToDoubleFunction;
  */
 public class ExpressionEnv {
 
-	private CharTree<BinaryOperator> binaryOperators = new CharTree<>();
-	private CharTree<Token> leadingOperators = new CharTree<>();
-	private CharTree<Value> values = new CharTree<>();
+	private final CharTree<BinaryOperator> binaryOperators = new CharTree<>();
+	private final CharTree<Token> leadingOperators = new CharTree<>();
+	private final CharTree<Value> values = new CharTree<>();
 
 	private int varCount = 0;
 	
@@ -24,14 +24,14 @@ public class ExpressionEnv {
 	 * Creates a new EvaluationEnvironment
 	 */
 	public ExpressionEnv() {
-		for (BinaryOperator op : BinaryOperator.values()) {
-			binaryOperators.set(op.symbol, op);
+		for (BinaryOperator operator : BinaryOperator.values()) {
+			binaryOperators.set(operator.getSymbol(), operator);
 		}
-		for (UnaryOperator op : UnaryOperator.values()) {
-			leadingOperators.set(op.symbol, op);
+		for (UnaryOperator operator : UnaryOperator.values()) {
+			leadingOperators.set(operator.getSymbol(), operator);
 		}
-		for (Constant con : Constant.values()) {
-			values.set(con.toString().toLowerCase(Locale.ROOT), con);
+		for (Constant constant : Constant.values()) {
+			values.set(constant.toString().toLowerCase(Locale.ROOT), constant);
 		}
 	}
 
@@ -49,9 +49,13 @@ public class ExpressionEnv {
 	 * @param function The function
 	 */
 	public void addFunction(Function function) {
-		checkName(function.getName());
-		char[] chars = function.getName().toCharArray();
-		leadingOperators.set(function.getName(), function);
+		if (function == null) {
+			throw new IllegalArgumentException("Function cannot be null");
+		}
+
+		String name = function.getName();
+		this.checkName(name);
+		this.leadingOperators.set(name, function);
 	}
 	
 	/**
@@ -59,6 +63,10 @@ public class ExpressionEnv {
 	 * @param functions The functions to add
 	 */
 	public void addFunctions(Function... functions) {
+		if (functions == null) {
+			throw new IllegalArgumentException("Functions cannot be null");
+		}
+
 		for (Function function : functions) {
 			addFunction(function);
 		}
@@ -70,11 +78,19 @@ public class ExpressionEnv {
 	 * @param supply A function to supply the value of the variable when needed
 	 */
 	public void addLazyVariable(String name, DoubleSupplier supply) {
+		if (supply == null) {
+			throw new IllegalArgumentException("Supply cannot be null");
+		}
+
 		checkName(name);
 		values.set(name, new LazyVariable(name, supply));
 	}
 	
 	public void setVariableNames(String... names) {
+		if (names == null) {
+			throw new IllegalArgumentException("Names cannot be null");
+		}
+
 		varCount = names.length;
 		for (int i = 0; i < names.length; i++) {
 			checkName(names[i]);
@@ -96,28 +112,28 @@ public class ExpressionEnv {
 	 * @return The prefix tree of all leading operators, including unary operators and functions
 	 */
 	public CharTree<Token> getLeadingOperators() {
-		return leadingOperators;
+		return this.leadingOperators;
 	}
 
 	/**
 	 * @return The prefix tree of all binary operators
 	 */
 	public CharTree<BinaryOperator> getBinaryOperators() {
-		return binaryOperators;
+		return this.binaryOperators;
 	}
 
 	/**
 	 * @return The prefix tree of all values, including constants, variables, and lazy variables
 	 */
 	public CharTree<Value> getValues() {
-		return values;
+		return this.values;
 	}
 
 	/**
 	 * @return The number of variables in this expression environment
 	 */
 	public int getVariableCount() {
-		return varCount;
+		return this.varCount;
 	}
 	
 }

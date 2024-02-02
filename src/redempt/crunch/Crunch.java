@@ -7,8 +7,12 @@ import redempt.crunch.token.BinaryOperator;
  * Public API methods for compiling expressions
  * @author Redempt
  */
-public class Crunch {
-	
+public final class Crunch {
+
+	private Crunch() {
+		// Prevent instantiation
+	}
+
 	private static final ExpressionEnv DEFAULT_EVALUATION_ENVIRONMENT = new ExpressionEnv();
 	
 	/**
@@ -19,7 +23,7 @@ public class Crunch {
 	 * @return The compiled expression
 	 */
 	public static CompiledExpression compileExpression(String expression) {
-		return new ExpressionParser(expression, DEFAULT_EVALUATION_ENVIRONMENT).parse();
+		return Crunch.compileExpression(expression, DEFAULT_EVALUATION_ENVIRONMENT);
 	}
 	
 	/**
@@ -42,8 +46,7 @@ public class Crunch {
 	 * @return The value of the expression
 	 */
 	public static double evaluateExpression(String expression, double... varValues) {
-		CompiledExpression exp = new ExpressionParser(expression, DEFAULT_EVALUATION_ENVIRONMENT).parse();
-		return exp.evaluate(varValues);
+		return Crunch.compileExpression(expression).evaluate(varValues);
 	}
 	
 }

@@ -1,8 +1,8 @@
 package redempt.crunch.token;
 
 public class UnaryOperation implements Value {
-    private UnaryOperator operator;
-    private Value first;
+    private final UnaryOperator operator;
+    private final Value first;
 
     public UnaryOperation(UnaryOperator operator, Value value) {
         this.operator = operator;
@@ -19,7 +19,7 @@ public class UnaryOperation implements Value {
     
     @Override
     public double getValue() {
-        return operator.operate.applyAsDouble(first.getValue());
+        return operator.getOperation().applyAsDouble(first.getValue());
     }
 
     @Override
@@ -28,7 +28,7 @@ public class UnaryOperation implements Value {
     }
 
     public String toString() {
-        return "(" + operator.symbol +  first.toString() + ")";
+        return "(" + operator.getSymbol() +  first.toString() + ")";
     }
 
     public UnaryOperation getClone() {

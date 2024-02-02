@@ -93,7 +93,7 @@ public class FastNumberParsing {
 			}
 		}
 		after /= Math.pow(10, end - decimal - 1);
-		return negative ? -output - after: output + after;
+		return negative ? (-output - after) : (output + after);
 	}
 	
 }

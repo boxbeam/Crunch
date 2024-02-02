@@ -9,6 +9,6 @@ public interface Token {
 	/**
 	 * @return The type of this Token
 	 */
-	public TokenType getType();
+	TokenType getType();
 	
 }

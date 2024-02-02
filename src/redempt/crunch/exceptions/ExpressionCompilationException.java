@@ -4,7 +4,7 @@ import redempt.crunch.ExpressionParser;
 
 public class ExpressionCompilationException extends RuntimeException {
 	
-	private ExpressionParser parser;
+	private final ExpressionParser parser;
 
 	public ExpressionCompilationException(ExpressionParser parser, String message) {
 		super(generateMessage(parser, message));
@@ -19,7 +19,7 @@ public class ExpressionCompilationException extends RuntimeException {
 		if (parser == null) {
 			return message;
 		}
-		return message + ":\n" + parser.str + "\n" + repeat(' ', parser.cur) + "^";
+		return message + ":\n" + parser.getInput() + "\n" + repeat(' ', parser.getCursor()) + "^";
 	}
 
 	private static String repeat(char c, int n) {

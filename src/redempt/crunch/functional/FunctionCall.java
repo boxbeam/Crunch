@@ -9,9 +9,9 @@ import redempt.crunch.token.Value;
  */
 public class FunctionCall implements Value {
 	
-	private Value[] values;
-	private Function function;
-	private double[] numbers;
+	private final Value[] values;
+	private final Function function;
+	private final double[] numbers;
 	
 	public FunctionCall(Function function, Value[] values) {
 		this.function = function;

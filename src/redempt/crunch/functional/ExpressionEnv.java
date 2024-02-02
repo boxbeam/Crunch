@@ -48,7 +48,7 @@ public class ExpressionEnv {
 	 * Adds a Function that can be called from expressions with this environment
 	 * @param function The function
 	 */
-	public void addFunction(Function function) {
+	public ExpressionEnv addFunction(Function function) {
 		if (function == null) {
 			throw new IllegalArgumentException("Function cannot be null");
 		}
@@ -56,13 +56,14 @@ public class ExpressionEnv {
 		String name = function.getName();
 		this.checkName(name);
 		this.leadingOperators.set(name, function);
+		return this;
 	}
 	
 	/**
 	 * Adds any number of Functions that can be called from expressions with this environment
 	 * @param functions The functions to add
 	 */
-	public void addFunctions(Function... functions) {
+	public ExpressionEnv addFunctions(Function... functions) {
 		if (functions == null) {
 			throw new IllegalArgumentException("Functions cannot be null");
 		}
@@ -70,6 +71,7 @@ public class ExpressionEnv {
 		for (Function function : functions) {
 			addFunction(function);
 		}
+		return this;
 	}
 	
 	/**
@@ -77,16 +79,17 @@ public class ExpressionEnv {
 	 * @param name The name of the lazy variable
 	 * @param supply A function to supply the value of the variable when needed
 	 */
-	public void addLazyVariable(String name, DoubleSupplier supply) {
+	public ExpressionEnv addLazyVariable(String name, DoubleSupplier supply) {
 		if (supply == null) {
 			throw new IllegalArgumentException("Supply cannot be null");
 		}
 
 		checkName(name);
 		values.set(name, new LazyVariable(name, supply));
+		return this;
 	}
 	
-	public void setVariableNames(String... names) {
+	public ExpressionEnv setVariableNames(String... names) {
 		if (names == null) {
 			throw new IllegalArgumentException("Names cannot be null");
 		}
@@ -96,6 +99,7 @@ public class ExpressionEnv {
 			checkName(names[i]);
 			values.set(names[i], new Variable(null, i));
 		}
+		return this;
 	}
 	
 	/**
@@ -104,8 +108,9 @@ public class ExpressionEnv {
 	 * @param argCount The argument count for the function
 	 * @param func The lambda to accept the arguments as a double array and return a value
 	 */
-	public void addFunction(String name, int argCount, ToDoubleFunction<double[]> func) {
+	public ExpressionEnv addFunction(String name, int argCount, ToDoubleFunction<double[]> func) {
 		addFunction(new Function(name, argCount, func));
+		return this;
 	}
 
 	/**

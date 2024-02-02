@@ -2,9 +2,9 @@ package redempt.crunch.token;
 
 public class BinaryOperation implements Value {
 	
-	private BinaryOperator operator;
-	private Value first;
-	private Value second;
+	private final BinaryOperator operator;
+	private final Value first;
+	private final Value second;
 	
 	public BinaryOperation(BinaryOperator operator, Value first, Value second) {
 		this.operator = operator;
@@ -22,7 +22,7 @@ public class BinaryOperation implements Value {
 	
 	@Override
 	public double getValue() {
-		return operator.operate.applyAsDouble(first.getValue(), second.getValue());
+		return operator.getOperation().applyAsDouble(first.getValue(), second.getValue());
 	}
 	
 	@Override
@@ -31,7 +31,7 @@ public class BinaryOperation implements Value {
 	}
 	
 	public String toString() {
-		return "(" + first.toString() + operator.symbol + second.toString() + ")";
+		return "(" + first.toString() + operator.getSymbol() + second.toString() + ")";
 	}
 	
 	public BinaryOperation getClone() {

@@ -10,7 +10,7 @@ import redempt.crunch.token.Value;
  */
 public class ArgumentList implements Token {
 	
-	private Value[] arguments;
+	private final Value[] arguments;
 	
 	public ArgumentList(Value[] arguments) {
 		this.arguments = arguments;

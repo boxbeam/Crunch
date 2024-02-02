@@ -24,17 +24,17 @@ public enum UnaryOperator implements Token {
     CBRT("cbrt", Math::cbrt),
     RAND("rand", d -> ThreadLocalRandom.current().nextDouble() * d, false);
 
-    public final String symbol;
-    public final DoubleUnaryOperator operate;
+    private final String symbol;
+    private final DoubleUnaryOperator operation;
     private boolean pure = true;
     
-    private UnaryOperator(String symbol, DoubleUnaryOperator operate) {
+    UnaryOperator(String symbol, DoubleUnaryOperator operation) {
         this.symbol = symbol;
-        this.operate = operate;
+        this.operation = operation;
     }
 
-    private UnaryOperator(String symbol, DoubleUnaryOperator operate, boolean pure) {
-        this(symbol, operate);
+    UnaryOperator(String symbol, DoubleUnaryOperator operation, boolean pure) {
+        this(symbol, operation);
         this.pure = pure;
     }
     
@@ -42,13 +42,21 @@ public enum UnaryOperator implements Token {
     public TokenType getType() {
         return TokenType.UNARY_OPERATOR;
     }
-    
+
+    public DoubleUnaryOperator getOperation() {
+        return operation;
+    }
+
     public int getPriority() {
         return 6;
     }
 
     public boolean isPure() {
         return pure;
+    }
+
+    public String getSymbol() {
+        return symbol;
     }
 
     @Override

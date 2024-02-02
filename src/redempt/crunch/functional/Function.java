@@ -11,18 +11,18 @@ import java.util.function.ToDoubleFunction;
  */
 public class Function implements Token {
 	
-	private String name;
-	private int argCount;
-	private ToDoubleFunction<double[]> func;
+	private final String name;
+	private final int argCount;
+	private final ToDoubleFunction<double[]> function;
 	
 	/**
 	 * Create a Function
 	 * @param name The function name
 	 * @param argCount The number of arguments this Function will take
-	 * @param func A lambda to take the arguments as a double array and return a value
+	 * @param function A lambda to take the arguments as a double array and return a value
 	 */
-	public Function(String name, int argCount, ToDoubleFunction<double[]> func) {
-		this.func = func;
+	public Function(String name, int argCount, ToDoubleFunction<double[]> function) {
+		this.function = function;
 		this.name = name;
 		this.argCount = argCount;
 	}
@@ -47,7 +47,7 @@ public class Function implements Token {
 	 * @return The output value
 	 */
 	public double call(double[] values) {
-		return func.applyAsDouble(values);
+		return function.applyAsDouble(values);
 	}
 	
 	@Override

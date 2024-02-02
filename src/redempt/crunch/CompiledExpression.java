@@ -106,7 +106,7 @@ public class CompiledExpression {
 	/**
 	 * @return A clone of this CompiledExpression
 	 */
-	public CompiledExpression clone() {
+	public CompiledExpression clone() { // Consider using a copy method instead of clone. This would be a breaking change.
 		return new CompiledExpression(value.getClone(), variableCount);
 	}
 	

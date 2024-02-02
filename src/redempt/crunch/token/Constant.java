@@ -13,9 +13,9 @@ public enum Constant implements Value {
 	TRUE(1),
 	FALSE(0);
 	
-	private double value;
+	private final double value;
 	
-	private Constant(double value) {
+	Constant(double value) {
 		this.value = value;
 	}
 	

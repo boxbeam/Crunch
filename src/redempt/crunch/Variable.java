@@ -5,7 +5,7 @@ import redempt.crunch.token.Value;
 
 public class Variable implements Value {
 	
-	private int index;
+	private final int index;
 	protected CompiledExpression expression;
 	
 	public Variable(CompiledExpression expression, int index) {

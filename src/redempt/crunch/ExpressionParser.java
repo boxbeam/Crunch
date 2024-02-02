@@ -6,42 +6,61 @@ import redempt.crunch.functional.ArgumentList;
 import redempt.crunch.functional.ExpressionEnv;
 import redempt.crunch.functional.Function;
 import redempt.crunch.functional.FunctionCall;
-import redempt.crunch.token.*;
+import redempt.crunch.token.BinaryOperator;
+import redempt.crunch.token.LiteralValue;
+import redempt.crunch.token.Token;
+import redempt.crunch.token.TokenType;
+import redempt.crunch.token.UnaryOperation;
+import redempt.crunch.token.UnaryOperator;
+import redempt.crunch.token.Value;
 
 public class ExpressionParser {
 
-    public final String str;
-    public int cur = 0;
-    public final ExpressionEnv env;
-    private CompiledExpression expr = new CompiledExpression();
+    private final String input;
+    private final ExpressionEnv environment;
+    private final CompiledExpression expression = new CompiledExpression();
+
     private int maxVarIndex;
-    
-    ExpressionParser(String str, ExpressionEnv env) {
-        if (str == null) {
+    private int cursor = 0;
+
+    ExpressionParser(String input, ExpressionEnv env) {
+        if (input == null) {
             throw new ExpressionCompilationException(null, "Expression is null");
         }
         if (env == null) {
             throw new ExpressionCompilationException(null, "Environment is null");
         }
         maxVarIndex = env.getVariableCount() - 1;
-        this.str = str;
-        this.env = env;
+        this.input = input;
+        this.environment = env;
     }
-    
+
     public char peek() {
-        return str.charAt(cur);
+        return input.charAt(cursor);
     }
-    
+
     public char advance() {
-        return str.charAt(cur++);
+        return input.charAt(cursor++);
     }
-    
+
     public void advanceCursor() {
-        cur++;
+        cursor++;
     }
 
     public boolean isAtEnd() {
-        return cur >= str.length();
+        return cursor >= input.length();
+    }
+
+    public int getCursor() {
+        return cursor;
+    }
+
+    public void setCursor(int cursor) {
+        this.cursor = cursor;
+    }
+
+    public String getInput() {
+        return input;
     }
 
     public void expectChar(char c) {
@@ -56,7 +75,7 @@ public class ExpressionParser {
 
     private boolean whitespace() {
         while (!isAtEnd() && Character.isWhitespace(peek())) {
-            cur++;
+            cursor++;
         }
         return true;
     }
@@ -72,7 +91,7 @@ public class ExpressionParser {
         ShuntingYard tokens = new ShuntingYard();
         tokens.addValue(first);
         while (whitespace() && !isAtEnd() && peek() != ')' && peek() != ',') {
-            BinaryOperator token = env.getBinaryOperators().getWith(this);
+            BinaryOperator token = environment.getBinaryOperators().getWith(this);
             if (token == null) {
                 error("Expected binary operator");
             }
@@ -102,7 +121,7 @@ public class ExpressionParser {
         }
         int index = (int) value - 1;
         maxVarIndex = Math.max(index, maxVarIndex);
-        return new Variable(expr, index);
+        return new Variable(expression, index);
     }
 
     private Value parseTerm() {
@@ -123,29 +142,34 @@ public class ExpressionParser {
                 return parseNestedExpression();
             case '$':
                 return parseAnonymousVariable();
+            default:
+                break; // Ignore
         }
-        Token leadingOperator = env.getLeadingOperators().getWith(this);
+
+        Token leadingOperator = environment.getLeadingOperators().getWith(this);
         if (leadingOperator != null) {
             return parseLeadingOperation(leadingOperator);
         }
-        Value term = env.getValues().getWith(this);
+        Value term = environment.getValues().getWith(this);
         if (term == null) {
             error("Expected value");
         }
         if (term instanceof Variable) {
-            ((Variable) term).expression = expr;
+            ((Variable) term).expression = expression;
         }
         return term;
     }
 
     private LiteralValue parseLiteral() {
-        int start = cur;
+        int start = cursor;
         char c;
         while (Character.isDigit(c = peek()) || c == '.') {
             advanceCursor();
-            if (isAtEnd()) break;
+            if (isAtEnd()) {
+                break;
+            }
         }
-        return new LiteralValue(FastNumberParsing.parseDouble(str, start, cur));
+        return new LiteralValue(FastNumberParsing.parseDouble(input, start, cursor));
     }
 
     private Value parseLeadingOperation(Token token) {
@@ -155,9 +179,9 @@ public class ExpressionParser {
                 UnaryOperator op = (UnaryOperator) token;
                 Value term = parseTerm();
                 if (op.isPure() && term.getType() == TokenType.LITERAL_VALUE) {
-                    return new LiteralValue(op.operate.applyAsDouble(term.getValue()));
+                    return new LiteralValue(op.getOperation().applyAsDouble(term.getValue()));
                 }
-                return new UnaryOperation((UnaryOperator) token, term);
+                return new UnaryOperation(op, term);
             case FUNCTION:
                 Function function = (Function) token;
                 ArgumentList args = parseArgumentList(function.getArgCount());
@@ -195,8 +219,8 @@ public class ExpressionParser {
         if (!isAtEnd()) {
             error("Dangling term");
         }
-        expr.initialize(value, maxVarIndex + 1);
-        return expr;
+        expression.initialize(value, maxVarIndex + 1);
+        return expression;
     }
-    
+
 }

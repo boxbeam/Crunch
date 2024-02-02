@@ -2,8 +2,8 @@ package redempt.crunch.data;
 
 public class Pair<K, V> {
 	
-	private K first;
-	private V second;
+	private final K first;
+	private final V second;
 	
 	public Pair(K first, V second) {
 		this.first = first;

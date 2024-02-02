@@ -4,8 +4,8 @@ import java.util.function.DoubleSupplier;
 
 public class LazyVariable implements Value {
 	
-	private String name;
-	private DoubleSupplier supplier;
+	private final String name;
+	private final DoubleSupplier supplier;
 	
 	public LazyVariable(String name, DoubleSupplier supplier) {
 		this.name = name;

@@ -9,7 +9,7 @@ import redempt.crunch.ExpressionParser;
  */
 public class CharTree<T> {
 	
-	private Node root = new Node();
+	private final Node root = new Node();
 	
 	/**
 	 * Sets a String in this CharTree
@@ -73,11 +73,13 @@ public class CharTree<T> {
 	public T getWith(ExpressionParser parser) {
 		Node node = root;
 		T val = null;
-		int lastParsed = parser.cur;
-		for (int i = lastParsed; i < parser.str.length(); i++) {
-			node = node.getNode(parser.str.charAt(i));
+		int lastParsed = parser.getCursor();
+		String input = parser.getInput();
+
+		for (int i = lastParsed; i < input.length(); i++) {
+			node = node.getNode(input.charAt(i));
 			if (node == null) {
-				parser.cur = (val == null ? parser.cur : lastParsed + 1);
+				parser.setCursor(val == null ? parser.getCursor() : lastParsed + 1);
 				return val;
 			}
 			T nodeValue = (T) node.getValue();
@@ -87,7 +89,7 @@ public class CharTree<T> {
 			}
 		}
 		if (val != null) {
-			parser.cur = lastParsed + 1;
+			parser.setCursor(lastParsed + 1);
 		}
 		return val;
 	}
@@ -95,7 +97,7 @@ public class CharTree<T> {
 	private static class Node {
 		
 		private Object value;
-		private Node[] children = new Node[256];
+		private final Node[] children = new Node[256];
 		
 		public Node getNode(char c) {
 			return children[c];

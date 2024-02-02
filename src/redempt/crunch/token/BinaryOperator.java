@@ -1,7 +1,6 @@
 package redempt.crunch.token;
 
 import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleUnaryOperator;
 
 /**
  * Represents an Operator which can be used in mathematical expressions
@@ -29,13 +28,13 @@ public enum BinaryOperator implements Token {
     SUBTRACT("-", 3, (a, b) -> a - b),
     SCIENTIFIC_NOTATION("E", 5, (a, b) -> a * Math.pow(10, b));
 
-    public final String symbol;
-    public final DoubleBinaryOperator operate;
-    public final int priority;
+    private final String symbol;
+    private final DoubleBinaryOperator operation;
+    private final int priority;
 
-    private BinaryOperator(String name, int priority, DoubleBinaryOperator operate) {
+    BinaryOperator(String name, int priority, DoubleBinaryOperator operation) {
         this.symbol = name;
-        this.operate = operate;
+        this.operation = operation;
         this.priority = priority;
     }
 
@@ -48,4 +47,15 @@ public enum BinaryOperator implements Token {
         return symbol;
     }
 
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public DoubleBinaryOperator getOperation() {
+        return operation;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
 }

@@ -2,7 +2,7 @@ package redempt.crunch.token;
 
 public class LiteralValue implements Value {
 	
-	private double value;
+	private final double value;
 	
 	public LiteralValue(double value) {
 		this.value = value;

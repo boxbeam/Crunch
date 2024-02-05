@@ -107,7 +107,7 @@ public class CompiledExpression {
 	 * @return A clone of this CompiledExpression
 	 */
 	public CompiledExpression clone() {
-		return new CompiledExpression(value.getClone(), variableCount);
+		return new CompiledExpression(value, variableCount);
 	}
 	
 	/**

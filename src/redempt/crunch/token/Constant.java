@@ -25,7 +25,7 @@ public enum Constant implements Value {
 	}
 	
 	@Override
-	public double getValue() {
+	public double getValue(double[] variableValues) {
 		return value;
 	}
 	

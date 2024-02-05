@@ -6,10 +6,8 @@ import redempt.crunch.token.Value;
 public class Variable implements Value {
 	
 	private final int index;
-	protected CompiledExpression expression;
 	
-	public Variable(CompiledExpression expression, int index) {
-		this.expression = expression;
+	public Variable(int index) {
 		this.index = index;
 	}
 	
@@ -18,8 +16,8 @@ public class Variable implements Value {
 	}
 	
 	@Override
-	public double getValue() {
-		return expression.variableValues[index];
+	public double getValue(double[] variableValues) {
+		return variableValues[index];
 	}
 	
 	@Override
@@ -32,7 +30,7 @@ public class Variable implements Value {
 	}
 	
 	public Variable getClone() {
-		return new Variable(expression, index);
+		return new Variable(index);
 	}
 	
 }

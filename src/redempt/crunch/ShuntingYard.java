@@ -26,7 +26,7 @@ public class ShuntingYard {
         Value right = stack.removeLast();
         Value left = stack.removeLast();
         if (right.getType() == TokenType.LITERAL_VALUE && left.getType() == TokenType.LITERAL_VALUE) {
-            stack.add(new LiteralValue(op.getOperation().applyAsDouble(left.getValue(), right.getValue())));
+            stack.add(new LiteralValue(op.getOperation().applyAsDouble(left.getValue(new double[0]), right.getValue(new double[0]))));
         } else {
             stack.add(new BinaryOperation(op, left, right));
         }

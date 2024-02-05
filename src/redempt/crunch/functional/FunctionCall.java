@@ -25,9 +25,9 @@ public class FunctionCall implements Value {
 	}
 	
 	@Override
-	public double getValue() {
+	public double getValue(double[] variableValues) {
 		for (int i = 0; i < values.length; i++) {
-			numbers[i] = values[i].getValue();
+			numbers[i] = values[i].getValue(variableValues);
 		}
 		return function.call(numbers);
 	}

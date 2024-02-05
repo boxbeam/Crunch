@@ -55,7 +55,7 @@ public class CompiledExpression {
 	 */
 	public double evaluate(double... values) {
 		setVariableValues(values);
-		return value.getValue();
+		return value.getValue(this.variableValues);
 	}
 	
 	/**
@@ -64,7 +64,7 @@ public class CompiledExpression {
 	 */
 	public double evaluate() {
 		checkArgCount(0);
-		return value.getValue();
+		return value.getValue(this.variableValues);
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public class CompiledExpression {
 			variableValues = new double[1];
 		}
 		variableValues[0] = first;
-		return value.getValue();
+		return value.getValue(this.variableValues);
 	}
 	
 	/**
@@ -94,7 +94,7 @@ public class CompiledExpression {
 		}
 		variableValues[0] = first;
 		variableValues[1] = second;
-		return value.getValue();
+		return value.getValue(this.variableValues);
 	}
 	
 	private void checkArgCount(int args) {

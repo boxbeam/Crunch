@@ -21,8 +21,8 @@ public class BinaryOperation implements Value {
 	}
 	
 	@Override
-	public double getValue() {
-		return operator.getOperation().applyAsDouble(first.getValue(), second.getValue());
+	public double getValue(double[] variableValues) {
+		return operator.getOperation().applyAsDouble(first.getValue(variableValues), second.getValue(variableValues));
 	}
 	
 	@Override

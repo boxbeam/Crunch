@@ -112,7 +112,7 @@ public class ExpressionParser {
 
     private Value parseAnonymousVariable() {
         expectChar('$');
-        double value = parseLiteral().getValue();
+        double value = parseLiteral().getValue(new double[0]);
         if (value % 1 != 0) {
             error("Decimal variable indices are not allowed");
         }
@@ -121,7 +121,7 @@ public class ExpressionParser {
         }
         int index = (int) value - 1;
         maxVarIndex = Math.max(index, maxVarIndex);
-        return new Variable(expression, index);
+        return new Variable(index);
     }
 
     private Value parseTerm() {
@@ -154,9 +154,6 @@ public class ExpressionParser {
         if (term == null) {
             error("Expected value");
         }
-        if (term instanceof Variable) {
-            ((Variable) term).expression = expression;
-        }
         return term;
     }
 
@@ -179,7 +176,7 @@ public class ExpressionParser {
                 UnaryOperator op = (UnaryOperator) token;
                 Value term = parseTerm();
                 if (op.isPure() && term.getType() == TokenType.LITERAL_VALUE) {
-                    return new LiteralValue(op.getOperation().applyAsDouble(term.getValue()));
+                    return new LiteralValue(op.getOperation().applyAsDouble(term.getValue(new double[0])));
                 }
                 return new UnaryOperation(op, term);
             case FUNCTION:

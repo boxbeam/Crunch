@@ -18,8 +18,8 @@ public class UnaryOperation implements Value {
     }
     
     @Override
-    public double getValue() {
-        return operator.getOperation().applyAsDouble(first.getValue());
+    public double getValue(double[] variableValues) {
+        return operator.getOperation().applyAsDouble(first.getValue(variableValues));
     }
 
     @Override

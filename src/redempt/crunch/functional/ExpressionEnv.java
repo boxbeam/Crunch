@@ -97,7 +97,7 @@ public class ExpressionEnv {
 		varCount = names.length;
 		for (int i = 0; i < names.length; i++) {
 			checkName(names[i]);
-			values.set(names[i], new Variable(null, i));
+			values.set(names[i], new Variable(i));
 		}
 		return this;
 	}

@@ -6,7 +6,7 @@ package redempt.crunch.token;
  */
 public interface Value extends Token, Cloneable {
 	
-	double getValue();
+	double getValue(double[] variableValues);
 	Value getClone();
 	
 }

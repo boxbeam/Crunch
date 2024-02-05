@@ -136,4 +136,11 @@ class CrunchTest {
 		assertEquals(83080, compiled.evaluate());
 	}
 
+	@Test
+	void cloneTest() {
+		CompiledExpression expr = Crunch.compileExpression("$1");
+		assertEquals(1, expr.evaluate(1));
+		assertEquals(2, expr.clone().evaluate(2));
+	}
+
 }

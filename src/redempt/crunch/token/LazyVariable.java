@@ -18,7 +18,7 @@ public class LazyVariable implements Value {
 	}
 	
 	@Override
-	public double getValue() {
+	public double getValue(double[] variableValues) {
 		return supplier.getAsDouble();
 	}
 	
